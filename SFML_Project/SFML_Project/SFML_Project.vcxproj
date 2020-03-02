@@ -136,7 +136,6 @@
   <ItemGroup>
     <ClInclude Include="Game\Bar.h" />
     <ClInclude Include="Game\Globals.h" />
-    <ClInclude Include="Game\Pack.h" />
     <ClInclude Include="Game\Planet.h" />
     <ClInclude Include="Game\QuadTree.h" />
     <ClInclude Include="Game\TeamHandler.h" />

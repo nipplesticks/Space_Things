@@ -2,6 +2,9 @@
 #include "Planet.h"
 #include <DirectXMath.h>
 #include "Globals.h"
+#include "../Utility/vector.h"
+
+using namespace Container::Vector;
 
 float Unit::DEFAULT_UNIT_RADIUS = 3.0f;
 float Unit::DEFAULT_UNIT_SPEED = 64.0f;
@@ -79,10 +82,12 @@ void Unit::SetDestination(const sf::Vector2f& destination)
     m_isFollowingTarget = false;
     m_inOrbit = false;
     m_target = nullptr;
+    m_isIdle = false;
 }
 
 void Unit::SetDestination(Planet* planet)
 {
+    m_isIdle = false;
     m_target = planet;
     m_destination = planet->GetPosition();
     m_isFollowingTarget = false;
@@ -148,35 +153,91 @@ void Unit::PlaceInQT()
 
 void Unit::Update(float dt)
 {
-    sf::Vector2f direction = m_destination - GetPosition();
-    float l = sqrt(direction.x * direction.x + direction.y * direction.y);
-
-    if (m_target)
+    if (!m_isIdle)
     {
-        float lBefore = l;
-        sf::Vector2f directionBefore = direction;
-        m_destination = m_target->GetPosition();
-        direction = m_destination - GetPosition();
-        l = sqrt(direction.x * direction.x + direction.y * direction.y);
+        sf::Vector2f direction = m_destination - GetPosition();
+        float l = sqrt(direction.x * direction.x + direction.y * direction.y);
 
-        if (m_inOrbit && (l < m_orbitDistance + m_target->GetRadius() || m_isFollowingTarget))
+        if (m_target)
         {
-            sf::Vector2f _dir = directionBefore * (1.0f / lBefore);
-            SetPosition(m_destination - _dir * ((float)m_orbitDistance + m_target->GetRadius()));
-            m_isFollowingTarget = true;
-            m_destination = _calcOrbitPosition();
+            float lBefore = l;
+            sf::Vector2f directionBefore = direction;
+            m_destination = m_target->GetPosition();
             direction = m_destination - GetPosition();
             l = sqrt(direction.x * direction.x + direction.y * direction.y);
+
+            if (m_inOrbit && (l < m_orbitDistance + m_target->GetRadius() || m_isFollowingTarget))
+            {
+                sf::Vector2f _dir = directionBefore * (1.0f / lBefore);
+                SetPosition(m_destination - _dir * ((float)m_orbitDistance + m_target->GetRadius()));
+                m_isFollowingTarget = true;
+                m_destination = _calcOrbitPosition();
+                direction = m_destination - GetPosition();
+                l = sqrt(direction.x * direction.x + direction.y * direction.y);
+            }
         }
+
+        if (l > GetRadius())
+        {
+            direction = direction * (1.0f / l);
+
+            Vector<Unit*> nearbyUnits = Global::g_unitQuadtree.GetObjectsFromCircle(GetPosition(), GetRadius() * 2);
+
+            if (nearbyUnits.Size() > 1)
+            {
+                sf::Vector2f alter(0, 0);
+                for (size_t i = 0; i < nearbyUnits.Size(); i++)
+                {
+                    if (nearbyUnits[i] == this)
+                        continue;
+                    if (nearbyUnits[i]->GetTeam() == m_team)
+                    {
+                        alter = alter + nearbyUnits[i]->GetPosition();
+                    }
+                }
+                alter = alter * (1.0f / (float)(nearbyUnits.Size() - 1));
+
+                alter = GetPosition() - alter;
+                float alterLength = sqrt(alter.x * alter.x + alter.y * alter.y);
+                direction = direction * 2.0f + (alter * (1.0f / alterLength));
+
+                l = sqrt(direction.x * direction.x + direction.y * direction.y);
+                direction = direction * (1.0f / l);
+            }
+
+            Move(direction * m_speed * dt);
+
+            if (m_isFollowingTarget)
+                m_destination = m_target->GetPosition();
+        }
+        else if (m_target == nullptr)
+            m_isIdle = true;
     }
-
-    if (l > GetRadius())
+    else
     {
-        direction = direction * (1.0f / l);
-        Move(direction * m_speed * dt);
+        Vector<Unit*> nearbyUnits = Global::g_unitQuadtree.GetObjectsFromCircle(GetPosition(), GetRadius());
 
-        if (m_isFollowingTarget)
-            m_destination = m_target->GetPosition();
+        if (nearbyUnits.Size() > 1)
+        {
+            sf::Vector2f idleDir(0, 0);
+            for (size_t i = 0; i < nearbyUnits.Size(); i++)
+            {
+                if (nearbyUnits[i] == this)
+                    continue;
+                if (nearbyUnits[i]->GetTeam() == m_team)
+                {
+                    idleDir = idleDir + nearbyUnits[i]->GetPosition();
+                }
+            }
+            idleDir = idleDir * (1.0f / (float)(nearbyUnits.Size() - 1));
+
+            idleDir = GetPosition() - idleDir;
+            float l = sqrt(idleDir.x * idleDir.x + idleDir.y * idleDir.y);
+
+            idleDir = idleDir * (1.0f / l);
+
+            Move(idleDir * (float)nearbyUnits.Size() * dt);
+        }
     }
 }
 

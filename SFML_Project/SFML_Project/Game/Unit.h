@@ -2,7 +2,6 @@
 #define _UNIT_H_
 #include <SFML/Graphics.hpp>
 #include <string>
-#include "QuadTree.h"
 class Planet;
 
 class Unit
@@ -75,6 +74,7 @@ private:
     int m_strength;
     int m_orbitDistance;
     bool m_isFollowingTarget;
+    bool m_isIdle;
     float m_speed;
 };
 

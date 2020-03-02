@@ -226,7 +226,7 @@ inline void QuadTree<T>::Node::GetObjectsFromCircle(const sf::Vector2f& center, 
         if (HasChildren)
         {
             for (size_t i = 0; i < 4; i++)
-                Children[i].GetObjectsFromQuad(center, rad, returnVec);
+                Children[i].GetObjectsFromCircle(center, rad, returnVec);
         }
         else
         {
@@ -236,7 +236,7 @@ inline void QuadTree<T>::Node::GetObjectsFromCircle(const sf::Vector2f& center, 
                 sf::Vector2f centerToObject = Objects[i].Position - center;
                 float lsqr = centerToObject.x * centerToObject.x + centerToObject.y * centerToObject.y;
                 if (lsqr < (rad * rad))
-                    returnVec.PushBack(Objects.Data);
+                    returnVec.PushBack(Objects[i].Data);
             }
         }
     }
