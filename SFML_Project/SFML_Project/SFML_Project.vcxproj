@@ -146,6 +146,7 @@
   <ItemGroup>
     <ClCompile Include="Game\Bar.cpp" />
     <ClCompile Include="Game\Planet.cpp" />
+    <ClCompile Include="Game\TeamHandler.cpp" />
     <ClCompile Include="Game\Unit.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>

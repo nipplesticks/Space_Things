@@ -56,6 +56,8 @@ public:
 
     float GetSpeed() const;
 
+    bool IsDead() const;
+
     void PlaceInQT();
     void Update(float dt);
 

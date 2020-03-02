@@ -146,6 +146,11 @@ float Unit::GetSpeed() const
     return m_speed;
 }
 
+bool Unit::IsDead() const
+{
+    return m_strength <= 0;
+}
+
 void Unit::PlaceInQT()
 {
     Global::g_unitQuadtree.Place(this, GetPosition());
@@ -216,7 +221,6 @@ void Unit::Update(float dt)
     else
     {
         Vector<Unit*> nearbyUnits = Global::g_unitQuadtree.GetObjectsFromCircle(GetPosition(), GetRadius());
-
         if (nearbyUnits.Size() > 1)
         {
             sf::Vector2f idleDir(0, 0);
