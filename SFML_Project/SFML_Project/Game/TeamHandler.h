@@ -30,11 +30,11 @@ private:
     void _checkOwnedPlanets();
     void _updateUnits(float dt);
     void _createUnits();
-
-
+    void _removeDeadUnits();
 private:
     float m_timer;
     std::string m_teamName;
+    sf::Color m_teamColor;
     Container::Vector::Vector<Unit> m_units;
     Container::Vector::Vector<Unit*> m_selectedUnits;
     Container::Vector::Vector<Planet*> m_pPlanets;

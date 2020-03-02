@@ -88,6 +88,7 @@ void Unit::SetDestination(const sf::Vector2f& destination)
 void Unit::SetDestination(Planet* planet)
 {
     m_isIdle = false;
+    m_inOrbit = false;
     m_target = planet;
     m_destination = planet->GetPosition();
     m_isFollowingTarget = false;
@@ -215,6 +216,27 @@ void Unit::Update(float dt)
             if (m_isFollowingTarget)
                 m_destination = m_target->GetPosition();
         }
+        else if (!m_inOrbit && m_target)
+        {
+            if (m_target->GetCurrentLevel() != m_target->GetMaxLevel() || m_target->GetTeam() != m_team)
+            {
+                if (m_target->GetTeam() == m_team)
+                    m_target->IncrementToNextLevel(m_strength);
+                else if (m_target->GetTeam() == "Neutral")
+                {
+                    m_target->SetTeam(m_team);
+                    m_target->SetColor(m_shape.getFillColor());
+                    m_target->IncrementToNextLevel(m_strength);
+                }
+                else
+                {
+                    m_target->IncrementDestruction(m_strength);
+                }
+                m_strength = 0;
+            }
+            else
+                m_inOrbit = true;
+        }
         else if (m_target == nullptr)
             m_isIdle = true;
     }
@@ -253,7 +275,8 @@ void Unit::Draw(sf::RenderWindow* wnd)
 void Unit::DrawAndUpdateQt(sf::RenderWindow* wnd)
 {
     Draw(wnd);
-    PlaceInQT();
+    if (!IsDead())
+        PlaceInQT();
 }
 
 sf::Vector2f Unit::_calcOrbitPosition() const

@@ -1,5 +1,4 @@
 #include "TeamHandler.h"
-
 #include "Globals.h"
 
 using namespace Container::Vector;
@@ -15,6 +14,7 @@ TeamHandler::TeamHandler(size_t startUnits)
 void TeamHandler::SetNameAndTeamColor(const std::string& name, const sf::Color& color)
 {
     m_teamName = name;
+    m_teamColor = color;
 
     for (size_t i = 0; i < m_units.Size(); i++)
     {
@@ -40,25 +40,35 @@ void TeamHandler::SetStartPlanet(size_t planetIndex)
 
     for (size_t i = 0; i < m_units.Size(); i++)
     {
-        m_units[i].SetPosition(base->GetPosition());
+        sf::Vector2f dir(rand() + 1, rand() + 1);
+        float l = sqrt(dir.x * dir.x + dir.y * dir.y);
+        dir = dir * (1.0f / l);
+        m_units[i].SetPosition(base->GetPosition() + dir * 2.0f);
         m_units[i].SetDestination(base);
+        m_units[i].SetInOrbit(true);
     }
 }
 
 void TeamHandler::CreateUnits(size_t count, Planet* atPlanet)
 {
-    for (size_t i = 0; i < count; i+=2)
+    for (size_t i = 0; i < count; i++)
     {
         sf::Vector2f dir(rand() + 1, rand() + 1);
         float l = sqrt(dir.x * dir.x + dir.y * dir.y);
         dir = dir * (1.0f / l);
         m_units.PushBack(Unit());
-        m_units.Back().
-            /*
-            m_units[i].SetTeam(m_teamName);
-        m_units[i].SetColor(color);
-        m_units[i].SetPosition(base->GetPosition());
-        m_units[i].SetDestination(base);*/
+        m_units.Back().SetTeam(m_teamName);
+        m_units.Back().SetColor(m_teamColor);
+        m_units.Back().SetPosition(atPlanet->GetPosition() + dir * 2.0f);
+        m_units.Back().SetDestination(atPlanet);
+        m_units.Back().SetInOrbit(true);
+
+        m_units.PushBack(Unit());
+        m_units.Back().SetTeam(m_teamName);
+        m_units.Back().SetColor(m_teamColor);
+        m_units.Back().SetPosition(atPlanet->GetPosition() + dir * -2.0f);
+        m_units.Back().SetDestination(atPlanet);
+        m_units.Back().SetInOrbit(true);
     }
 }
 
@@ -79,8 +89,14 @@ void TeamHandler::SetDestination(const sf::Vector2f& destination, Planet* planet
     size_t s = m_selectedUnits.Size();
 
     if (planet)
+    {
         for (size_t i = 0; i < s; i++)
+        {
             m_selectedUnits[i]->SetDestination(planet);
+            if (planet->GetCurrentLevel() == planet->GetMaxLevel())
+                m_selectedUnits[i]->SetInOrbit(true);
+        }
+    }
     else
         for (size_t i = 0; i < s; i++)
             m_selectedUnits[i]->SetDestination(destination);
@@ -89,6 +105,7 @@ void TeamHandler::SetDestination(const sf::Vector2f& destination, Planet* planet
 void TeamHandler::Update(float dt)
 {
     m_timer += dt;
+    _removeDeadUnits();
     _checkOwnedPlanets();
     _createUnits();
     _updateUnits(dt);
@@ -106,8 +123,12 @@ void TeamHandler::_checkOwnedPlanets()
     size_t numberOfPlanets = m_pPlanets.Size();
     m_pOwnedPlanets.Clear();
     for (size_t i = 0; i < numberOfPlanets; i++)
+    {
         if (m_pPlanets[i]->GetTeam() == m_teamName)
+        {
             m_pOwnedPlanets.PushBack(m_pPlanets[i]);
+        }
+    }
 }
 
 void TeamHandler::_updateUnits(float dt)
@@ -126,7 +147,31 @@ void TeamHandler::_createUnits()
         size_t numberOfPlanets = m_pOwnedPlanets.Size();
         for (size_t i = 0; i < numberOfPlanets; i++)
         {
-            CreateUnits(m_pOwnedPlanets[i]->GetCurrentLevel() * 2, m_pOwnedPlanets[i]);
+            CreateUnits(m_pOwnedPlanets[i]->GetCurrentLevel(), m_pOwnedPlanets[i]);
+        }
+    }
+}
+
+void TeamHandler::_removeDeadUnits()
+{
+    size_t size = m_selectedUnits.Size();
+    for (int i = 0; i < (int)size; i++)
+    {
+        if (m_selectedUnits[i]->IsDead())
+        {
+            m_selectedUnits.Erase(i);
+            i--;
+            size--;
+        }
+    }
+    size = m_units.Size();
+    for (int i = 0; i < (int)size; i++)
+    {
+        if (m_units[i].IsDead())
+        {
+            m_units.Erase(i);
+            i--;
+            size--;
         }
     }
 }

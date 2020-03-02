@@ -67,6 +67,8 @@ private:
 private:
     sf::CircleShape m_shape;
     
+    sf::Color m_col;
+
     Bar m_levelUpIndicator;
     Bar m_destructionIndicator;
 

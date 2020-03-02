@@ -10,6 +10,7 @@ using namespace Container::Vector;
 
 Planet::Planet()
 {
+    m_col = NEUTRAL_COLOR;
     m_shape.setFillColor(NEUTRAL_COLOR);
     m_shape.setRadius(START_RADIUS);
     m_shape.setOrigin(sf::Vector2f(START_RADIUS, START_RADIUS));
@@ -90,6 +91,7 @@ void Planet::SetColor(int r, int g, int b, int a)
 
 void Planet::SetColor(const sf::Color& color)
 {
+    m_col = color;
     m_shape.setFillColor(color);
     m_text.setFillColor(color);
     for (int i = 1; i < m_currentLevel; i++)
@@ -124,7 +126,6 @@ void Planet::SetMaxLevel(int maxLevel)
 
 void Planet::IncrementToNextLevel(int inc)
 {
-    
     if (m_destructionCounter > 0)
         m_destructionCounter -= inc;
     else if (m_levelUpCounter < MAX_INCREMENT_LEVEL)
@@ -258,6 +259,18 @@ void Planet::Update(float dt)
 {
     m_levelUpIndicator.Update(dt);
     m_destructionIndicator.Update(dt);
+
+    if (m_currentLevel == 0)
+    {
+        m_shape.setFillColor(NEUTRAL_COLOR);
+        m_shape.setOutlineThickness(-3);
+        m_shape.setOutlineColor(m_col);
+    }
+    else
+    {
+        m_shape.setFillColor(m_col);
+        m_shape.setOutlineThickness(0);
+    }
 }
 
 void Planet::Draw(sf::RenderWindow* wnd)
