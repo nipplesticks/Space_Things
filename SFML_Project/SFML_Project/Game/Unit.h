@@ -2,6 +2,7 @@
 #define _UNIT_H_
 #include <SFML/Graphics.hpp>
 #include <string>
+#include "QuadTree.h"
 class Planet;
 
 class Unit
@@ -12,6 +13,7 @@ public:
     static int DEFUALT_MIN_ORBIT_DISTANCE;
     static int DEFUALT_MAX_ORBIT_DISTANCE;
     static int DEFAULT_UNIT_STRENGTH;
+
 public:
     Unit();
     ~Unit(){}
@@ -55,9 +57,11 @@ public:
 
     float GetSpeed() const;
 
+    void PlaceInQT();
     void Update(float dt);
 
     void Draw(sf::RenderWindow* wnd);
+    void DrawAndUpdateQt(sf::RenderWindow* wnd);
 
 private:
     sf::Vector2f _calcOrbitPosition() const;

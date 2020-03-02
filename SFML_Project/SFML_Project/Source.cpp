@@ -5,14 +5,18 @@
 
 sf::Font Global::g_font;
 sf::Vector2f Global::g_mousePos = sf::Vector2f(0, 0);
+QuadTree<Unit*> Global::g_unitQuadtree;
 
 int main()
 {
+    sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
     using namespace Container::Vector;
 
     Global::g_font.loadFromFile("AGENCYB.TTF");
 
-    sf::RenderWindow window(sf::VideoMode(1280, 720), "Simple RTS");
+    Global::g_unitQuadtree.Init(sf::Vector2f(-5000, -5000), sf::Vector2f(5000, 5000), 10U);
+
+    sf::RenderWindow window(sf::VideoMode(1280, 720, desktop.bitsPerPixel), "Planet_stuff");
 
     Planet::MAX_INCREMENT_LEVEL = 5;
     Planet p;
@@ -21,11 +25,9 @@ int main()
     p.SetTeam("Player");
     p.SetColor(sf::Color::Green);
     p.SetCurrentLevel(4);
-    Timer deltaTimer;
-    deltaTimer.Start();
 
-    Vector<Unit> unitVector(30, 30);
-
+    Vector<Unit> unitVector(500, 500);
+    Vector<Unit*> unitVectorSelection;
     for (size_t i = 0; i < unitVector.Size(); i++)
     {
         unitVector[i].SetPosition(rand() % 1280, 0);
@@ -34,12 +36,24 @@ int main()
         unitVector[i].SetColor(sf::Color::Green);
     }
 
+    sf::RectangleShape selection;
+    selection.setFillColor(sf::Color::Transparent);
+    selection.setOutlineThickness(1);
+    selection.setOutlineColor(sf::Color::White);
 
     bool leftMousePressed = false;
     bool rightMousePressed = false;
+
+    double totalTime = 0;
+    size_t frameCounter = 0;
+
+    Timer deltaTimer;
+    deltaTimer.Start();
     while (window.isOpen())
     {
         float dt = (float)deltaTimer.Stop();
+        frameCounter++;
+        totalTime += dt;
         sf::Event e;
         while (window.pollEvent(e))
         {
@@ -47,16 +61,48 @@ int main()
                 window.close();
         }
         Global::g_mousePos = (sf::Vector2f)sf::Mouse::getPosition(window);
-
+        
         bool leftMousePress = sf::Mouse::isButtonPressed(sf::Mouse::Left);
         bool rightMousePress = sf::Mouse::isButtonPressed(sf::Mouse::Right);
         bool inc = false;
         bool dec = false;
 
         if (leftMousePress && !leftMousePressed)
+        {
+            selection.setPosition(Global::g_mousePos);
             inc = true;
+        }
+        else if (leftMousePress)
+            selection.setSize(Global::g_mousePos - selection.getPosition());
+
         if (rightMousePress && !rightMousePressed)
+        {
             dec = true;
+
+
+            Planet *pp = nullptr;
+            sf::Vector2f planetPos = p.GetPosition();
+            sf::Vector2f planetToMouse = Global::g_mousePos - planetPos;
+            float lSqr = planetToMouse.x * planetToMouse.x + planetToMouse.y * planetToMouse.y;
+            if (lSqr < (p.GetRadius() * p.GetRadius()))
+                pp = &p;
+            size_t selectionSize = unitVectorSelection.Size();
+            for (size_t i = 0; i < selectionSize; i++)
+            {
+                if (pp)
+                {
+                    unitVectorSelection[i]->SetDestination(pp);
+                    unitVectorSelection[i]->SetInOrbit(true);
+                }
+                else
+                    unitVectorSelection[i]->SetDestination(Global::g_mousePos);
+            }
+        }
+
+        if (!leftMousePress && leftMousePressed)
+            unitVectorSelection = Global::g_unitQuadtree.GetObjectsFromQuad(selection.getPosition(), selection.getPosition() + selection.getSize());
+
+        bool drawSelection = leftMousePress && leftMousePressed;
 
         leftMousePressed = leftMousePress;
         rightMousePressed = rightMousePress;
@@ -98,13 +144,25 @@ int main()
             p.DrawInfo(&window);
         }
         
+        Global::g_unitQuadtree.Clear();
         for (size_t i = 0; i < unitVector.Size(); i++)
-        {
-            unitVector[i].Draw(&window);
-        }
+            unitVector[i].DrawAndUpdateQt(&window);
 
+        if (drawSelection)
+            window.draw(selection);
         window.display();
+
+        
+        if (totalTime > 1.0f)
+        {
+            window.setTitle("FPS: " + std::to_string(frameCounter) + " | " + std::to_string(totalTime / frameCounter) + " ms/frame");
+            totalTime -= 1.0f;
+            frameCounter = 0;
+        }
     }
 
+    Global::g_unitQuadtree.Release();
+
     return 0;
+
 }

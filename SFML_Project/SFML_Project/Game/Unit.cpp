@@ -1,6 +1,7 @@
 #include "Unit.h"
 #include "Planet.h"
 #include <DirectXMath.h>
+#include "Globals.h"
 
 float Unit::DEFAULT_UNIT_RADIUS = 3.0f;
 float Unit::DEFAULT_UNIT_SPEED = 64.0f;
@@ -76,6 +77,8 @@ void Unit::SetDestination(const sf::Vector2f& destination)
 {
     m_destination = destination;
     m_isFollowingTarget = false;
+    m_inOrbit = false;
+    m_target = nullptr;
 }
 
 void Unit::SetDestination(Planet* planet)
@@ -138,6 +141,11 @@ float Unit::GetSpeed() const
     return m_speed;
 }
 
+void Unit::PlaceInQT()
+{
+    Global::g_unitQuadtree.Place(this, GetPosition());
+}
+
 void Unit::Update(float dt)
 {
     sf::Vector2f direction = m_destination - GetPosition();
@@ -175,6 +183,12 @@ void Unit::Update(float dt)
 void Unit::Draw(sf::RenderWindow* wnd)
 {
     wnd->draw(m_shape);
+}
+
+void Unit::DrawAndUpdateQt(sf::RenderWindow* wnd)
+{
+    Draw(wnd);
+    PlaceInQT();
 }
 
 sf::Vector2f Unit::_calcOrbitPosition() const

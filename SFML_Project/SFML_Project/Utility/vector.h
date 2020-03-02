@@ -10,7 +10,7 @@ namespace Container
         class Vector
         {
         public:
-            Vector(size_t capacity = 1, size_t elementCount = 0, size_t increment = 5);
+            Vector(size_t capacity = 0, size_t elementCount = 0, size_t increment = 5);
             Vector(const Vector<T>& other);
             ~Vector();
 
@@ -63,7 +63,7 @@ namespace Container
 
         private:
             T* m_data;
-            size_t m_capacity = 1;
+            size_t m_capacity = 0;
             size_t m_elementCount = 0;
             size_t m_increment = 5;
         };
@@ -73,7 +73,9 @@ namespace Container
             m_capacity = capacity;
             m_increment = increment;
             m_elementCount = elementCount;
-            m_data = new T[m_capacity];
+            m_data = nullptr;
+            if (capacity)
+                m_data = new T[m_capacity];
         }
         template<class T>
         inline Vector<T>::Vector(const Vector<T>& other)

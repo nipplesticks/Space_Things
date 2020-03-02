@@ -2,12 +2,16 @@
 #define _GLOBALS_H_
 
 #include <SFML/Graphics.hpp>
+#include "QuadTree.h"
+
+class Unit;
 
 namespace Global
 {
     extern sf::Font g_font;
     extern sf::Vector2f g_mousePos;
     sf::Color LerpColor(const sf::Color& _a, const sf::Color& _b, float t);
+    extern QuadTree<Unit*> g_unitQuadtree;
 }
 
 inline sf::Color Global::LerpColor(const sf::Color& _a, const sf::Color& _b, float t)
