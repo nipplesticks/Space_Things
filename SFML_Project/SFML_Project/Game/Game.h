@@ -2,11 +2,12 @@
 #define _GAME_H_
 
 #include <iostream>
+#include <string>
 #include "Globals.h"
 #include "Planet.h"
 #include "Unit.h"
 #include "TeamHandler.h"
-#include <string>
+#include "Button.h"
 
 class Game
 {
@@ -31,6 +32,7 @@ private:
     void _update();
     void _updateGameTimer();
     void _draw();
+    void _test();
     std::string _vecTosTring(const sf::Vector2f& vec)
     {
         std::string str = "X: ";
@@ -58,6 +60,8 @@ private:
     sf::Text m_fps;
     sf::Text m_frameTime;
     sf::Text m_otherInfo;
+
+    Button m_button;
 };
 
 

@@ -39,6 +39,11 @@ void Game::Init()
     m_selection.setOutlineThickness(1);
     m_selection.setOutlineColor(sf::Color::White);
     m_planetHover = nullptr;
+
+    m_button.SetPosition(1280 - 32, 720 - 32);
+    std::function<void()> testFunc();
+
+
 }
 
 void Game::Run(sf::RenderWindow* wnd)
@@ -155,6 +160,7 @@ void Game::_handleInput()
 
 void Game::_update()
 {
+    m_button.Update(m_deltaTime);
     m_player.Update(m_deltaTime);
     for (size_t i = 0; i < m_planets.Size(); i++)
         m_planets[i].Update(m_deltaTime);
@@ -189,10 +195,15 @@ void Game::_draw()
     if (m_drawSelection)
         m_wndPtr->draw(m_selection);
 
+    m_button.Draw(m_wndPtr);
     m_wndPtr->draw(m_fps);
     m_wndPtr->draw(m_frameTime);
-
     m_wndPtr->draw(m_otherInfo);
 
     m_wndPtr->display();
+}
+
+void Game::_test()
+{
+    std::cout << "Hello World!\n";
 }
