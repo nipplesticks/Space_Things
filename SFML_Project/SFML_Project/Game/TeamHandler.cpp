@@ -40,7 +40,7 @@ void TeamHandler::SetStartPlanet(size_t planetIndex)
 
     for (size_t i = 0; i < m_units.Size(); i++)
     {
-        sf::Vector2f dir(rand() + 1, rand() + 1);
+        sf::Vector2f dir((float)(rand() + 1), (float)(rand() + 1));
         float l = sqrt(dir.x * dir.x + dir.y * dir.y);
         dir = dir * (1.0f / l);
         m_units[i].SetPosition(base->GetPosition() + dir * 2.0f);
@@ -53,7 +53,7 @@ void TeamHandler::CreateUnits(size_t count, Planet* atPlanet)
 {
     for (size_t i = 0; i < count; i++)
     {
-        sf::Vector2f dir(rand() + 1, rand() + 1);
+        sf::Vector2f dir((float)(rand() + 1), (float)(rand() + 1));
         float l = sqrt(dir.x * dir.x + dir.y * dir.y);
         dir = dir * (1.0f / l);
         m_units.PushBack(Unit());

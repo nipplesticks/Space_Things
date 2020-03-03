@@ -35,10 +35,10 @@ Planet::Planet()
     m_levelUpIndicator.UseMinMaxColors(true);
     m_destructionIndicator.UseMinMaxColors(true);
 
-    m_destructionIndicator.SetMaxValue(MAX_INCREMENT_LEVEL);
+    m_destructionIndicator.SetMaxValue((float)MAX_INCREMENT_LEVEL);
     m_destructionIndicator.SetCurrentValue(0);
 
-    m_levelUpIndicator.SetMaxValue(MAX_INCREMENT_LEVEL);
+    m_levelUpIndicator.SetMaxValue((float)MAX_INCREMENT_LEVEL);
     m_levelUpIndicator.SetCurrentValue(0);
 
     m_destructionIndicator.SetForegroundMinColor(sf::Color::Green);
@@ -336,6 +336,6 @@ void Planet::_updateIndicators()
     m_levelUpIndicator.SetSize(size);
     m_destructionIndicator.SetSize(size);
 
-    m_levelUpIndicator.SetCurrentValue(m_levelUpCounter);
-    m_destructionIndicator.SetCurrentValue(m_destructionCounter);
+    m_levelUpIndicator.SetCurrentValue((float)m_levelUpCounter);
+    m_destructionIndicator.SetCurrentValue((float)m_destructionCounter);
 }

@@ -9,7 +9,15 @@ using namespace Container::Vector;
 
 Game::Game()
 {
-    
+    m_isRunning = false;
+    m_terminated = false;
+    m_wndPtr = nullptr;
+    m_deltaTime = 0.0f;
+    m_frameCounter = 0;
+    m_timer = 0.0f;
+    m_timeChanger = 1.0f;
+    m_drawSelection = false;
+    m_planetHover = nullptr;
 }
 
 Game::~Game()
@@ -121,7 +129,7 @@ void Game::_loadMap()
     {
         m_planets[i].SetMaxLevel(4);
         m_planets[i].SetCurrentLevel(0);
-        sf::Vector2f position = sf::Vector2f(rand() % 1080 + 100, rand() % 620 + 100);
+        sf::Vector2f position = sf::Vector2f((float)(rand() % 1080 + 100), (float)(rand() % 620 + 100));
         m_planets[i].SetPosition(position);
         planetsPtr.PushBack(&m_planets[i]);
     }
