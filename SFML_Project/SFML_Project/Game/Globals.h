@@ -12,6 +12,7 @@ namespace Global
     extern sf::Vector2f g_mousePos;
     sf::Color LerpColor(const sf::Color& _a, const sf::Color& _b, float t);
     extern QuadTree<Unit*> g_unitQuadtree;
+    extern sf::Vector2f g_windowSize;
 }
 
 inline sf::Color Global::LerpColor(const sf::Color& _a, const sf::Color& _b, float t)

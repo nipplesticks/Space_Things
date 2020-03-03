@@ -39,11 +39,9 @@ void Game::Init()
     m_selection.setOutlineThickness(1);
     m_selection.setOutlineColor(sf::Color::White);
     m_planetHover = nullptr;
+    m_timeChanger = 1.0f;
 
-    m_button.SetPosition(1280 - 32, 720 - 32);
-    std::function<void()> testFunc();
-
-
+    _setupButtons();
 }
 
 void Game::Run(sf::RenderWindow* wnd)
@@ -62,6 +60,7 @@ void Game::Run(sf::RenderWindow* wnd)
         m_frameCounter++;
         m_deltaTime = (float)gameTimer.Stop();
         m_timer += m_deltaTime;
+        m_deltaTime *= m_timeChanger;
 
         if (m_wndPtr->isOpen() && m_wndPtr->hasFocus())
         {
@@ -88,6 +87,29 @@ bool Game::IsRunning()
 void Game::Release()
 {
     Global::g_unitQuadtree.Release();
+}
+
+void Game::_setupButtons()
+{
+    m_speedButtons = Vector<Button<void(void)>>(4, 4);
+    float size = 32.0f;
+    float pos = Global::g_windowSize.y - size;
+
+    std::function<void(void)> funcs[] = {
+        std::bind(&Game::_setHalfSpeed, this),
+        std::bind(&Game::_setNormalSpeed, this),
+        std::bind(&Game::_setDoubleSpeed, this),
+        std::bind(&Game::_setTrippleSpeed, this)
+    };
+    std::string str[] = { "H", "N", "D", "T" };
+    for (size_t i = 0; i < m_speedButtons.Size(); i++)
+    {
+        m_speedButtons[i].SetSize(size, size);
+        m_speedButtons[i].SetPosition(i * size + 1, pos);
+        m_speedButtons[i].RegisterFunction(funcs[i]);
+        m_speedButtons[i].SetTextString(str[i]);
+        m_speedButtons[i].SetTextOrigin(-8.0f, 0.0f);
+    }
 }
 
 void Game::_loadMap()
@@ -160,7 +182,9 @@ void Game::_handleInput()
 
 void Game::_update()
 {
-    m_button.Update(m_deltaTime);
+    for (size_t i = 0; i < m_speedButtons.Size(); i++)
+        m_speedButtons[i].Update(m_deltaTime);
+
     m_player.Update(m_deltaTime);
     for (size_t i = 0; i < m_planets.Size(); i++)
         m_planets[i].Update(m_deltaTime);
@@ -183,9 +207,7 @@ void Game::_draw()
     m_wndPtr->clear();
 
     for (size_t i = 0; i < m_planets.Size(); i++)
-    {
         m_planets[i].Draw(m_wndPtr);
-    }
 
     m_player.Draw(m_wndPtr);
 
@@ -195,7 +217,9 @@ void Game::_draw()
     if (m_drawSelection)
         m_wndPtr->draw(m_selection);
 
-    m_button.Draw(m_wndPtr);
+    for (size_t i = 0; i < m_speedButtons.Size(); i++)
+        m_speedButtons[i].Draw(m_wndPtr);
+
     m_wndPtr->draw(m_fps);
     m_wndPtr->draw(m_frameTime);
     m_wndPtr->draw(m_otherInfo);
@@ -203,7 +227,22 @@ void Game::_draw()
     m_wndPtr->display();
 }
 
-void Game::_test()
+void Game::_setHalfSpeed()
 {
-    std::cout << "Hello World!\n";
+    m_timeChanger = 0.5f;
+}
+
+void Game::_setNormalSpeed()
+{
+    m_timeChanger = 1.0f;
+}
+
+void Game::_setDoubleSpeed()
+{
+    m_timeChanger = 2.0f;
+}
+
+void Game::_setTrippleSpeed()
+{
+    m_timeChanger = 3.0f;
 }

@@ -5,7 +5,7 @@
 #include <functional>
 #include "Globals.h"
 
-template <class T, class V>
+template <class T>
 class Button
 {
 public:
@@ -59,7 +59,7 @@ public:
     void Draw(sf::RenderWindow* wnd);
 
 private:
-    std::function<T, V> m_function;
+    std::function<T> m_function;
 
     sf::RectangleShape m_background;
     ButtonColor m_backgroundColor;
@@ -73,8 +73,8 @@ private:
     sf::Text m_text;
 };
 
-template <class T, class V>
-inline Button<T,V>::Button()
+template <class T>
+inline Button<T>::Button()
 {
     m_text.setFont(Global::g_font);
     m_text.setFillColor(sf::Color::Black);
@@ -83,153 +83,153 @@ inline Button<T,V>::Button()
     SetPosition(0, 0);
     SetSize(32, 32);
 }
-template <class T, class V>
-inline void Button<T,V>::SetPosition(float x, float y)
+template <class T>
+inline void Button<T>::SetPosition(float x, float y)
 {
     SetPosition({ x, y });
 }
-template <class T, class V>
-inline void Button<T,V>::SetPosition(const sf::Vector2f& position)
+template <class T>
+inline void Button<T>::SetPosition(const sf::Vector2f& position)
 {
     m_background.setPosition(position);
     m_foreground.setPosition(position);
     m_text.setPosition(position);
 }
-template <class T, class V>
-inline void Button<T,V>::SetSize(float x, float y)
+template <class T>
+inline void Button<T>::SetSize(float x, float y)
 {
     SetSize({ x, y });
 }
-template <class T, class V>
-inline void Button<T,V>::SetSize(const sf::Vector2f& size)
+template <class T>
+inline void Button<T>::SetSize(const sf::Vector2f& size)
 {
     SetBackgroundSize(size);
     SetForegroundSize(size);
 }
-template <class T, class V>
-inline void Button<T,V>::SetBackgroundSize(float x, float y)
+template <class T>
+inline void Button<T>::SetBackgroundSize(float x, float y)
 {
     SetBackgroundSize({ x, y });
 }
-template <class T, class V>
-inline void Button<T,V>::SetBackgroundSize(const sf::Vector2f& size)
+template <class T>
+inline void Button<T>::SetBackgroundSize(const sf::Vector2f& size)
 {
     m_background.setSize(size);
 }
-template <class T, class V>
-inline void Button<T,V>::SetForegroundSize(float x, float y)
+template <class T>
+inline void Button<T>::SetForegroundSize(float x, float y)
 {
     SetForegroundSize({ x, y });
 }
-template <class T, class V>
-inline void Button<T,V>::SetForegroundSize(const sf::Vector2f& size)
+template <class T>
+inline void Button<T>::SetForegroundSize(const sf::Vector2f& size)
 {
     m_foreground.setSize(size);
 }
-template <class T, class V>
-inline void Button<T,V>::SetTextSize(int characterSize)
+template <class T>
+inline void Button<T>::SetTextSize(int characterSize)
 {
     m_text.setCharacterSize(characterSize);
 }
-template <class T, class V>
-inline void Button<T,V>::SetTextColor(const sf::Color& col)
+template <class T>
+inline void Button<T>::SetTextColor(const sf::Color& col)
 {
     m_text.setFillColor(col);
 }
-template <class T, class V>
-inline void Button<T,V>::SetOrigin(float x, float y)
+template <class T>
+inline void Button<T>::SetOrigin(float x, float y)
 {
     SetOrigin({ x, y });
 }
-template <class T, class V>
-inline void Button<T,V>::SetOrigin(const sf::Vector2f& origin)
+template <class T>
+inline void Button<T>::SetOrigin(const sf::Vector2f& origin)
 {
     SetBackgroundOrigin(origin);
     SetForegroundOrigin(origin);
 }
-template <class T, class V>
-inline void Button<T,V>::SetForegroundOrigin(float x, float y)
+template <class T>
+inline void Button<T>::SetForegroundOrigin(float x, float y)
 {
     SetForegroundOrigin({ x, y });
 }
-template <class T, class V>
-inline void Button<T,V>::SetForegroundOrigin(const sf::Vector2f& origin)
+template <class T>
+inline void Button<T>::SetForegroundOrigin(const sf::Vector2f& origin)
 {
     m_foreground.setOrigin(origin);
 }
-template <class T, class V>
-inline void Button<T,V>::SetBackgroundOrigin(float x, float y)
+template <class T>
+inline void Button<T>::SetBackgroundOrigin(float x, float y)
 {
     SetBackgroundOrigin({ x, y });
 }
-template <class T, class V>
-inline void Button<T,V>::SetBackgroundOrigin(const sf::Vector2f& origin)
+template <class T>
+inline void Button<T>::SetBackgroundOrigin(const sf::Vector2f& origin)
 {
     m_background.setOrigin(origin);
 }
-template <class T, class V>
-inline void Button<T,V>::SetTextOrigin(float x, float y)
+template <class T>
+inline void Button<T>::SetTextOrigin(float x, float y)
 {
     SetTextOrigin({ x, y });
 }
-template <class T, class V>
-inline void Button<T,V>::SetTextOrigin(const sf::Vector2f& origin)
+template <class T>
+inline void Button<T>::SetTextOrigin(const sf::Vector2f& origin)
 {
     m_text.setOrigin(origin);
 }
-template <class T, class V>
-inline void Button<T,V>::SetTextString(const std::string& str)
+template <class T>
+inline void Button<T>::SetTextString(const std::string& str)
 {
     m_text.setString(str);
 }
-template <class T, class V>
-inline void Button<T,V>::SetForegroundColor(const ButtonColor& color)
+template <class T>
+inline void Button<T>::SetForegroundColor(const ButtonColor& color)
 {
     m_foregroundColor = color;
 }
-template <class T, class V>
-inline void Button<T,V>::SetBackgroundColor(const ButtonColor& color)
+template <class T>
+inline void Button<T>::SetBackgroundColor(const ButtonColor& color)
 {
     m_backgroundColor = color;
 }
-template <class T, class V>
-inline void Button<T,V>::SetBackgroundTexture(sf::Texture* texture)
+template <class T>
+inline void Button<T>::SetBackgroundTexture(sf::Texture* texture)
 {
     m_background.setTexture(texture);
 }
-template <class T, class V>
-inline void Button<T,V>::SetForegroundTexture(sf::Texture* texture)
+template <class T>
+inline void Button<T>::SetForegroundTexture(sf::Texture* texture)
 {
     m_foreground.setTexture(texture);
 }
-template <class T, class V>
-inline void Button<T,V>::RegisterFunction(const std::function<void()>& function)
+template <class T>
+inline void Button<T>::RegisterFunction(const std::function<void()>& function)
 {
     m_function = function;
     m_hasFunction = true;
 }
-template <class T, class V>
-inline const sf::Text& Button<T,V>::GetText() const
+template <class T>
+inline const sf::Text& Button<T>::GetText() const
 {
     return m_text;
 }
-template <class T, class V>
-inline const sf::Vector2f& Button<T,V>::GetForegroundSize() const
+template <class T>
+inline const sf::Vector2f& Button<T>::GetForegroundSize() const
 {
     return m_foreground.getSize();
 }
-template <class T, class V>
-inline const sf::Vector2f& Button<T,V>::GetBackgroundSize() const
+template <class T>
+inline const sf::Vector2f& Button<T>::GetBackgroundSize() const
 {
     return m_background.getSize();
 }
-template <class T, class V>
-inline const sf::Vector2f& Button<T,V>::GetPosition() const
+template <class T>
+inline const sf::Vector2f& Button<T>::GetPosition() const
 {
     return m_background.getSize();
 }
-template <class T, class V>
-inline void Button<T,V>::Update(float dt)
+template <class T>
+inline void Button<T>::Update(float dt)
 {
     bool press = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 
@@ -259,8 +259,8 @@ inline void Button<T,V>::Update(float dt)
     }
     m_pressed = press;
 }
-template <class T, class V>
-inline void Button<T,V>::Draw(sf::RenderWindow* wnd)
+template <class T>
+inline void Button<T>::Draw(sf::RenderWindow* wnd)
 {
     wnd->draw(m_background);
     wnd->draw(m_foreground);

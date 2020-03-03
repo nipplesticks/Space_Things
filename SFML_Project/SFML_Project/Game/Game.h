@@ -27,19 +27,18 @@ public:
     void Release();
 
 private:
+    void _setupButtons();
     void _loadMap();
     void _handleInput();
     void _update();
     void _updateGameTimer();
     void _draw();
-    void _test();
-    std::string _vecTosTring(const sf::Vector2f& vec)
-    {
-        std::string str = "X: ";
-        str += std::to_string(vec.x);
-        str += " Y: " + std::to_string(vec.y);
-        return str;
-    }
+
+    void _setHalfSpeed();
+    void _setNormalSpeed();
+    void _setDoubleSpeed();
+    void _setTrippleSpeed();
+
 private:
     bool m_isRunning;
     bool m_terminated;
@@ -49,6 +48,7 @@ private:
     float m_deltaTime;
     size_t m_frameCounter;
     float m_timer;
+    float m_timeChanger;
 
     sf::RectangleShape m_selection;
     bool m_drawSelection;
@@ -61,7 +61,7 @@ private:
     sf::Text m_frameTime;
     sf::Text m_otherInfo;
 
-    Button m_button;
+    Container::Vector::Vector<Button<void(void)>> m_speedButtons;
 };
 
 
