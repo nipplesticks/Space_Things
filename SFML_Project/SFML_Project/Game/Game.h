@@ -49,6 +49,7 @@ private:
     size_t m_frameCounter;
     float m_timer;
     float m_timeChanger;
+    bool m_hasSelection;
 
     sf::RectangleShape m_selection;
     bool m_drawSelection;

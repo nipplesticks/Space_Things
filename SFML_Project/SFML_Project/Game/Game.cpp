@@ -51,6 +51,7 @@ void Game::Init()
     m_selection.setOutlineColor(sf::Color::White);
     m_planetHover = nullptr;
     m_timeChanger = 1.0f;
+    m_hasSelection = false;
 
     _setupButtons();
 }
@@ -132,7 +133,9 @@ void Game::_loadMap()
     {
         m_planets[i].SetMaxLevel(4);
         m_planets[i].SetCurrentLevel(0);
-        sf::Vector2f position = sf::Vector2f((float)(rand() % 1080 + 100), (float)(rand() % 620 + 100));
+        sf::Vector2f position =
+            sf::Vector2f((float)(rand() % ((int)Global::g_windowSize.x - 200) + 100),
+            (float)(rand() % ((int)Global::g_windowSize.y - 200) + 100));
         m_planets[i].SetPosition(position);
         planetsPtr.PushBack(&m_planets[i]);
     }
@@ -156,20 +159,17 @@ void Game::_handleInput()
     bool lMousePress = sf::Mouse::isButtonPressed(sf::Mouse::Left);
     bool rMousePress = sf::Mouse::isButtonPressed(sf::Mouse::Right);
 
-
-    m_drawSelection = false;
     if (lMousePress && !Left_Mouse_Pressed)
     {
+        m_drawSelection = false;
+        m_hasSelection = false;
         m_selection.setPosition(Global::g_mousePos);
     }
     else if (lMousePress)
     {
         m_selection.setSize(Global::g_mousePos - m_selection.getPosition());
         m_drawSelection = true;
-    }
-    else if (!lMousePress && Left_Mouse_Pressed)
-    {
-        m_player.Select(m_selection.getPosition(), Global::g_mousePos);
+        m_hasSelection = true;
     }
 
     m_planetHover = nullptr;
@@ -184,6 +184,12 @@ void Game::_handleInput()
 
     if (rMousePress)
     {
+        if (m_hasSelection)
+        {
+            m_player.Select(m_selection.getPosition(), m_selection.getPosition() + m_selection.getSize());
+            m_hasSelection = false;
+            m_drawSelection = false;
+        }
         m_player.SetDestination(Global::g_mousePos, m_planetHover);
     }
 
