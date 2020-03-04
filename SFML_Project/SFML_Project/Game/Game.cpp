@@ -18,6 +18,9 @@ Game::Game()
     m_timeChanger = 1.0f;
     m_drawSelection = false;
     m_planetHover = nullptr;
+    m_fps.setCharacterSize(16);
+    m_otherInfo.setCharacterSize(16);
+    m_frameTime.setCharacterSize(16);
 }
 
 Game::~Game()
@@ -35,7 +38,7 @@ void Game::Init()
     m_fps.setFillColor(sf::Color::White);
     m_frameTime.setFont(Global::g_font);
     m_frameTime.setFillColor(sf::Color::White);
-    m_frameTime.setPosition(0.0f, 32.0f);
+    m_frameTime.setPosition(0.0f, m_fps.getCharacterSize() + 2);
     m_otherInfo = m_frameTime;
     m_isRunning = false;
     m_terminated = false;
@@ -196,6 +199,7 @@ void Game::_update()
     m_player.Update(m_deltaTime);
     for (size_t i = 0; i < m_planets.Size(); i++)
         m_planets[i].Update(m_deltaTime);
+
     Global::g_unitQuadtree.Clear(); // This must be at the end!
 }
 
@@ -224,6 +228,8 @@ void Game::_draw()
 
     if (m_drawSelection)
         m_wndPtr->draw(m_selection);
+
+    m_player.DrawInfo(m_wndPtr);
 
     for (size_t i = 0; i < m_speedButtons.Size(); i++)
         m_speedButtons[i].Draw(m_wndPtr);

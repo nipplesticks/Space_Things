@@ -4,6 +4,8 @@
 #include <string>
 class Planet;
 
+typedef long long unsigned int U64;
+
 class Unit
 {
 public:
@@ -12,6 +14,8 @@ public:
     static int DEFUALT_MIN_ORBIT_DISTANCE;
     static int DEFUALT_MAX_ORBIT_DISTANCE;
     static int DEFAULT_UNIT_STRENGTH;
+private:
+    static U64 STATIC_ID;
 
 public:
     Unit();
@@ -54,6 +58,8 @@ public:
 
     bool GetInOrbit() const;
 
+    U64 GetId() const;
+
     float GetSpeed() const;
 
     bool IsDead() const;
@@ -71,6 +77,7 @@ private:
     std::string m_team;
     sf::CircleShape m_shape;
     sf::Vector2f m_destination;
+    U64 m_id;
     Planet* m_target;
     bool m_inOrbit;
     int m_strength;

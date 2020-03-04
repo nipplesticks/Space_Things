@@ -4,8 +4,11 @@
 #include <string>
 #include "Planet.h"
 #include "Unit.h"
+#include <unordered_map>
 #include "../Utility/Timer.h"
 #include "../Utility/vector.h"
+
+typedef long long unsigned int U64;
 
 class TeamHandler
 {
@@ -25,9 +28,11 @@ public:
     void Update(float dt);
 
     void Draw(sf::RenderWindow* wnd);
+    void DrawInfo(sf::RenderWindow* wnd);
 
 private:
     void _checkOwnedPlanets();
+    void _updateInfo();
     void _updateUnits(float dt);
     void _createUnits();
     void _removeDeadUnits();
@@ -35,10 +40,14 @@ private:
     float m_timer;
     std::string m_teamName;
     sf::Color m_teamColor;
-    Container::Vector::Vector<Unit> m_units;
-    Container::Vector::Vector<Unit*> m_selectedUnits;
+    std::unordered_map<U64, Unit> m_units;
+    Container::Vector::Vector<U64> m_selectedUnits;
     Container::Vector::Vector<Planet*> m_pPlanets;
     Container::Vector::Vector<Planet*> m_pOwnedPlanets;
+
+    sf::Text m_unitCountText;
+    sf::Text m_selectedUnitsCountText;
+
 };
 
 

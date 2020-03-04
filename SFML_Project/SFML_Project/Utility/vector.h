@@ -30,6 +30,8 @@ namespace Container
             void Erase(size_t index);
             void Erase(size_t start, size_t end);
 
+            size_t Find(const T& element);
+
             void PopBack();
             void PopFront();
 
@@ -43,6 +45,7 @@ namespace Container
             void Resize(size_t size);
             void ShrinkToFit();
 
+            void Sort();
 
             T& At(size_t index) const;
             T* Data() const;
@@ -60,6 +63,10 @@ namespace Container
             void _cleanup();
             void _copy(const Vector<T>& other);
             void _resize(size_t newSize);
+            size_t _find(const T& element, int mi, int ma);
+
+            void _quicksort(int low, int high);
+            int _partition(int low, int high);
 
         private:
             T* m_data;
@@ -223,7 +230,7 @@ namespace Container
         }
         template<class T>
         inline void Vector<T>::Erase(size_t index)
-        {
+        {            
             m_elementCount--;
             for (size_t i = index; i < m_elementCount; i++)
                 m_data[i] = m_data[i + 1];
@@ -237,6 +244,14 @@ namespace Container
                 m_data[start + i] = m_data[end + i];
 
             m_elementCount -= count;
+        }
+        template<class T>
+        inline size_t Vector<T>::Find(const T& element)
+        {
+            if (Empty())
+                return UINT_MAX;
+
+            return _find(element, 0, m_elementCount - 1);
         }
         template<class T>
         inline void Vector<T>::PopBack()
@@ -331,6 +346,14 @@ namespace Container
             m_capacity = m_elementCount;
         }
         template<class T>
+        inline void Vector<T>::Sort()
+        {
+            if (Empty())
+                return;
+            else
+                _quicksort(0, (int)m_elementCount - 1);
+        }
+        template<class T>
         inline T& Vector<T>::At(size_t index) const
         {
             return m_data[index];
@@ -416,6 +439,52 @@ namespace Container
             delete[] m_data;
             m_data = Data;
             m_capacity = newSize;
+        }
+        template<class T>
+        inline size_t Vector<T>::_find(const T& element, int p, int r)
+        {
+            if (p <= r)
+            {
+                int mid = (p + r) / 2;
+                if (m_data[mid] == element)
+                    return mid;
+                if (m_data[mid] > element)
+                    return _find(element, p, mid - 1);
+                if (m_data[mid] > element)
+                    return _find(element, mid + 1, r);
+            }
+
+            return UINT_MAX;
+        }
+        template<class T>
+        inline void Vector<T>::_quicksort(int low, int high)
+        {
+            if (low < high)
+            {
+                int pi = _partition(low, high);
+                _quicksort(low, pi - 1);
+                _quicksort(pi + 1, high);
+            }
+        }
+        template<class T>
+        inline int Vector<T>::_partition(int low, int high)
+        {
+            int i = low - 1;
+
+            for (int j = low; j < high; j++)
+            {
+                if (m_data[j] <= m_data[high])
+                {
+                    i++;
+                    T t = m_data[i];
+                    m_data[i] = m_data[j];
+                    m_data[j] = t;
+                }
+            }
+            T t = m_data[i + 1];
+            m_data[i + 1] = m_data[high];
+            m_data[high] = t;
+            return (i + 1);
         }
     }
 }

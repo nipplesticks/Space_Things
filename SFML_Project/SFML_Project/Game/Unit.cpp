@@ -11,6 +11,7 @@ float Unit::DEFAULT_UNIT_SPEED = 64.0f;
 int Unit::DEFUALT_MIN_ORBIT_DISTANCE = 16;
 int Unit::DEFUALT_MAX_ORBIT_DISTANCE = 64;
 int Unit::DEFAULT_UNIT_STRENGTH = 1;
+U64 Unit::STATIC_ID = 0;
 
 Unit::Unit()
 {
@@ -23,6 +24,7 @@ Unit::Unit()
     m_strength = DEFAULT_UNIT_STRENGTH;
     m_speed = DEFAULT_UNIT_SPEED;
     m_isFollowingTarget = false;
+    m_id = STATIC_ID++;
 }
 
 void Unit::SetPosition(float x, float y)
@@ -140,6 +142,11 @@ const sf::Vector2f& Unit::GetDestination() const
 bool Unit::GetInOrbit() const
 {
     return m_inOrbit && m_target;
+}
+
+U64 Unit::GetId() const
+{
+    return m_id;
 }
 
 float Unit::GetSpeed() const
