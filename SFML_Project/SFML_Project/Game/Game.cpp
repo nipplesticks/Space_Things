@@ -15,9 +15,6 @@ Game::Game()
     m_deltaTime = 0.0f;
     m_frameCounter = 0;
     m_timer = 0.0f;
-    m_timeChanger = 1.0f;
-    m_drawSelection = false;
-    m_planetHover = nullptr;
     m_fps.setCharacterSize(16);
     m_otherInfo.setCharacterSize(16);
     m_frameTime.setCharacterSize(16);
@@ -42,18 +39,12 @@ void Game::Init()
     m_otherInfo = m_frameTime;
     m_isRunning = false;
     m_terminated = false;
-    m_drawSelection = false;
     m_deltaTime = 0.0f;
     m_frameCounter = 0;
     m_timer = 0.0f;
-    m_selection.setFillColor(sf::Color::Transparent);
-    m_selection.setOutlineThickness(1);
-    m_selection.setOutlineColor(sf::Color::White);
-    m_planetHover = nullptr;
-    m_timeChanger = 1.0f;
-    m_hasSelection = false;
 
-    _setupButtons();
+    m_stateStack.PushBack(new GameState());
+    m_stateStack.Back()->Init();
 }
 
 void Game::Run(sf::RenderWindow* wnd)
@@ -61,8 +52,6 @@ void Game::Run(sf::RenderWindow* wnd)
     srand(static_cast<unsigned>(time(NULL)));
     wnd->setActive(true);
     m_wndPtr = wnd;
-
-    _loadMap();
 
     m_isRunning = true;
     Timer gameTimer;
@@ -72,14 +61,28 @@ void Game::Run(sf::RenderWindow* wnd)
         m_frameCounter++;
         m_deltaTime = (float)gameTimer.Stop();
         m_timer += m_deltaTime;
-        m_deltaTime *= m_timeChanger;
 
         if (m_wndPtr->isOpen() && m_wndPtr->hasFocus())
         {
-            _handleInput();
-            _update();
-            _updateGameTimer();
-            _draw();
+            State::Event se;
+            Global::g_mousePos = (sf::Vector2f)sf::Mouse::getPosition(*m_wndPtr); // Should be at the top section
+            if (!m_stateStack.Empty())
+            {
+                m_stateStack.Back()->Update(m_deltaTime, &se);
+                _handleStateEvent(&se);
+                if (!m_stateStack.Empty())
+                {
+                    m_wndPtr->clear();
+                    m_stateStack.Back()->Draw(m_wndPtr);
+                    m_wndPtr->draw(m_fps);
+                    m_wndPtr->draw(m_frameTime);
+                    m_wndPtr->draw(m_otherInfo);
+                    m_wndPtr->display();
+                }
+                _updateGameTimer();
+            }
+            else
+                m_terminated = true;
         }
     }
 
@@ -99,125 +102,13 @@ bool Game::IsRunning()
 void Game::Release()
 {
     Global::g_unitQuadtree.Release();
-}
-
-void Game::_setupButtons()
-{
-    m_speedButtons = Vector<Button<void(void)>>(4, 4);
-    float size = 32.0f;
-    float pos = Global::g_windowSize.y - size;
-
-    std::function<void(void)> funcs[] = {
-        std::bind(&Game::_setHalfSpeed, this),
-        std::bind(&Game::_setNormalSpeed, this),
-        std::bind(&Game::_setDoubleSpeed, this),
-        std::bind(&Game::_setTrippleSpeed, this)
-    };
-    std::string str[] = { "H", "N", "D", "T" };
-    for (size_t i = 0; i < m_speedButtons.Size(); i++)
+    for (size_t i = 0; i < m_stateStack.Size(); i++)
     {
-        m_speedButtons[i].SetSize(size, size);
-        m_speedButtons[i].SetPosition(i * size + 1, pos);
-        m_speedButtons[i].RegisterFunction(funcs[i]);
-        m_speedButtons[i].SetTextString(str[i]);
-        m_speedButtons[i].SetTextOrigin(-8.0f, 0.0f);
+        m_stateStack[i]->Release();
+        delete m_stateStack[i];
+        m_stateStack[i] = nullptr;
     }
-}
-
-void Game::_loadMap()
-{
-    m_planets = Vector<Planet>(5, 5);
-    Vector<Planet*> planetsPtr(m_planets.Size());
-
-    for (size_t i = 0; i < m_planets.Size(); i++)
-    {
-        m_planets[i].SetMaxLevel(4);
-        m_planets[i].SetCurrentLevel(0);
-        sf::Vector2f position =
-            sf::Vector2f((float)(rand() % ((int)Global::g_windowSize.x - 200) + 100),
-            (float)(rand() % ((int)Global::g_windowSize.y - 200) + 100));
-        m_planets[i].SetPosition(position);
-        planetsPtr.PushBack(&m_planets[i]);
-    }
-    m_planets[0].SetTeam("Player");
-    m_planets[0].SetColor(sf::Color::Green);
-    m_planets[0].SetCurrentLevel(1);
-
-    m_planets[planetsPtr.Size() - 1].SetTeam("Enemy");
-    m_planets[planetsPtr.Size() - 1].SetColor(sf::Color::Red);
-    m_planets[planetsPtr.Size() - 1].SetCurrentLevel(1);
-
-
-    m_player.SetPlanetPointers(planetsPtr);
-    m_player.SetNameAndTeamColor("Player", sf::Color::Green);
-    m_player.SetStartPlanet(0);
-
-    m_enemy.SetPlanetPointers(planetsPtr);
-    m_enemy.SetNameAndTeamColor("Enemy", sf::Color::Red);
-    m_enemy.SetStartPlanet(planetsPtr.Size() - 1);
-
-}
-
-void Game::_handleInput()
-{
-    static bool Left_Mouse_Pressed = false;
-    static bool Right_Mouse_Pressed = false;
-    
-    Global::g_mousePos = (sf::Vector2f)sf::Mouse::getPosition(*m_wndPtr); // Should be at the top section
-
-
-    bool lMousePress = sf::Mouse::isButtonPressed(sf::Mouse::Left);
-    bool rMousePress = sf::Mouse::isButtonPressed(sf::Mouse::Right);
-
-    if (lMousePress && !Left_Mouse_Pressed)
-    {
-        m_drawSelection = false;
-        m_hasSelection = false;
-        m_selection.setPosition(Global::g_mousePos);
-    }
-    else if (lMousePress)
-    {
-        m_selection.setSize(Global::g_mousePos - m_selection.getPosition());
-        m_drawSelection = true;
-        m_hasSelection = true;
-    }
-
-    m_planetHover = nullptr;
-    for (size_t i = 0; i < m_planets.Size(); i++)
-    {
-        if (m_planets[i].Contains(Global::g_mousePos))
-        {
-            m_planetHover = &m_planets[i];
-            break;
-        }
-    }
-
-    if (rMousePress)
-    {
-        if (m_hasSelection)
-        {
-            m_player.Select(m_selection.getPosition(), m_selection.getPosition() + m_selection.getSize());
-            m_hasSelection = false;
-            m_drawSelection = false;
-        }
-        m_player.SetDestination(Global::g_mousePos, m_planetHover);
-    }
-
-    Left_Mouse_Pressed = lMousePress;
-    Right_Mouse_Pressed = rMousePress;
-}
-
-void Game::_update()
-{
-    for (size_t i = 0; i < m_speedButtons.Size(); i++)
-        m_speedButtons[i].Update(m_deltaTime);
-
-    m_player.Update(m_deltaTime);
-    m_enemy.Update(m_deltaTime);
-    for (size_t i = 0; i < m_planets.Size(); i++)
-        m_planets[i].Update(m_deltaTime);
-
-    Global::g_unitQuadtree.Clear(); // This must be at the end!
+    m_stateStack.Clear(true);
 }
 
 void Game::_updateGameTimer()
@@ -231,51 +122,47 @@ void Game::_updateGameTimer()
     }
 }
 
-void Game::_draw()
+void Game::_handleStateEvent(State::Event* se)
 {
-    m_wndPtr->clear();
+    switch (se->stackEvent)
+    {
+    case State::Pop:
+        m_stateStack.Back()->Release();
+        delete m_stateStack.Back();
+        m_stateStack.Back() = nullptr;
+        m_stateStack.PopBack();
+        break;
+    case State::PopPush:
+        m_stateStack.Back()->Release();
+        delete m_stateStack.Back();
+        m_stateStack.Back() = nullptr;
+        m_stateStack.PopBack();
+    case State::Push:
+        _pushNewState(se);
+        break;
+    default:
 
-    for (size_t i = 0; i < m_planets.Size(); i++)
-        m_planets[i].Draw(m_wndPtr);
-
-    m_player.Draw(m_wndPtr);
-    m_enemy.Draw(m_wndPtr);
-
-    if (m_planetHover)
-        m_planetHover->DrawInfo(m_wndPtr);
-
-    if (m_drawSelection)
-        m_wndPtr->draw(m_selection);
-
-    m_enemy.DrawInfo(m_wndPtr);
-    m_player.DrawInfo(m_wndPtr);
-
-    for (size_t i = 0; i < m_speedButtons.Size(); i++)
-        m_speedButtons[i].Draw(m_wndPtr);
-
-    m_wndPtr->draw(m_fps);
-    m_wndPtr->draw(m_frameTime);
-    m_wndPtr->draw(m_otherInfo);
-
-    m_wndPtr->display();
+        break;
+    }
 }
 
-void Game::_setHalfSpeed()
+void Game::_pushNewState(State::Event* se)
 {
-    m_timeChanger = 0.5f;
-}
+    State* newState = nullptr;
 
-void Game::_setNormalSpeed()
-{
-    m_timeChanger = 1.0f;
-}
-
-void Game::_setDoubleSpeed()
-{
-    m_timeChanger = 2.0f;
-}
-
-void Game::_setTrippleSpeed()
-{
-    m_timeChanger = 3.0f;
+    switch (se->newState)
+    {
+    case State::Game:
+        newState = new GameState();
+        newState->Init();
+        m_stateStack.PushBack(newState);
+        break;
+    case State::Menu:
+        //newState = new MenuState();
+        //newState->Init();
+        //m_stateStack.PushBack(newState);
+        break;
+    default:
+        break;
+    }
 }

@@ -137,9 +137,11 @@
     <ClInclude Include="Game\Bar.h" />
     <ClInclude Include="Game\Button.h" />
     <ClInclude Include="Game\Game.h" />
+    <ClInclude Include="Game\GameState.h" />
     <ClInclude Include="Game\Globals.h" />
     <ClInclude Include="Game\Planet.h" />
     <ClInclude Include="Game\QuadTree.h" />
+    <ClInclude Include="Game\State.h" />
     <ClInclude Include="Game\TeamHandler.h" />
     <ClInclude Include="Game\Unit.h" />
     <ClInclude Include="Utility\Timer.h" />
@@ -148,6 +150,7 @@
   <ItemGroup>
     <ClCompile Include="Game\Bar.cpp" />
     <ClCompile Include="Game\Game.cpp" />
+    <ClCompile Include="Game\GameState.cpp" />
     <ClCompile Include="Game\Planet.cpp" />
     <ClCompile Include="Game\TeamHandler.cpp" />
     <ClCompile Include="Game\Unit.cpp" />
