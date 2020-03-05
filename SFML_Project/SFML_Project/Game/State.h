@@ -11,6 +11,7 @@ public:
         None = 0,
         Game,
         Menu,
+        Pause,
         Pop,
         PopPush,
         Push
@@ -20,6 +21,7 @@ public:
     {
         State::StackEvent newState = StackEvent::None;
         State::StackEvent stackEvent = StackEvent::None;
+        size_t nrOfPops = 1;
     };
 
 public:
@@ -30,7 +32,10 @@ public:
     virtual void Update(float dt, Event* e) = 0;
     virtual void Release() = 0;
     virtual void Draw(sf::RenderWindow * wnd) = 0;
+    bool DrawStateBelow();
 
+protected:
+    bool m_drawBelow = false;
 };
 
 #endif

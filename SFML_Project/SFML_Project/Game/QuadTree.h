@@ -103,14 +103,14 @@ inline void QuadTree<T>::Node::Release()
     Min = sf::Vector2f(0, 0);
     Max = sf::Vector2f(0, 0);
     Depth = UINT_MAX;
-    Objects.Clear(true);
+    Objects.Clear();
     if (HasChildren)
     {
         for (size_t i = 0; i < 4; i++)
             Children[i].Release();
         HasChildren = false;
     }
-    Children.Clear(true);
+    Children.Clear();
 }
 
 template<class T>

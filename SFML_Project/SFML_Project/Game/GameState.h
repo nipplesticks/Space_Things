@@ -47,7 +47,6 @@ private:
     Planet* m_planetHover;
 
     Container::Vector::Vector<Button<void(void)>> m_speedButtons;
-
 };
 
 

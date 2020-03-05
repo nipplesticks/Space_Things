@@ -47,7 +47,7 @@ private:
 
     sf::Text m_unitCountText;
     sf::Text m_selectedUnitsCountText;
-
+    bool m_quadTreeCleared;
 };
 
 

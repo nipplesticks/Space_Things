@@ -10,6 +10,7 @@
 #include "Button.h"
 #include "GameState.h"
 #include "MenuState.h"
+#include "PauseState.h"
 
 class Game
 {

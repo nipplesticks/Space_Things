@@ -60,7 +60,7 @@ void MenuState::Update(float dt, Event* e)
 void MenuState::Release()
 {
     m_eventPtr = nullptr;
-    m_buttons.Clear(true);
+    m_buttons.Clear();
 }
 
 void MenuState::Draw(sf::RenderWindow* wnd)

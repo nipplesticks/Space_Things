@@ -73,7 +73,21 @@ void Game::Run(sf::RenderWindow* wnd)
                 if (!m_stateStack.Empty())
                 {
                     m_wndPtr->clear();
-                    m_stateStack.Back()->Draw(m_wndPtr);
+
+                    size_t i = m_stateStack.Size() - 1;
+
+                    if (i > 1)
+                    {
+                        for (int j = (int)i; j > 0; j--)
+                        {
+                            if (!m_stateStack[j]->DrawStateBelow())
+                                break;
+                            i--;
+                        }
+                    }
+                    for (;i < m_stateStack.Size(); i++)
+                        m_stateStack[i]->Draw(m_wndPtr);
+
                     m_wndPtr->draw(m_fps);
                     m_wndPtr->draw(m_frameTime);
                     m_wndPtr->draw(m_otherInfo);
@@ -108,7 +122,7 @@ void Game::Release()
         delete m_stateStack[i];
         m_stateStack[i] = nullptr;
     }
-    m_stateStack.Clear(true);
+    m_stateStack.Clear();
 }
 
 void Game::_updateGameTimer()
@@ -127,16 +141,22 @@ void Game::_handleStateEvent(State::Event* se)
     switch (se->stackEvent)
     {
     case State::Pop:
-        m_stateStack.Back()->Release();
-        delete m_stateStack.Back();
-        m_stateStack.Back() = nullptr;
-        m_stateStack.PopBack();
+        for (size_t i = 0; i < se->nrOfPops; i++)
+        {
+            m_stateStack.Back()->Release();
+            delete m_stateStack.Back();
+            m_stateStack.Back() = nullptr;
+            m_stateStack.PopBack();
+        }
         break;
     case State::PopPush:
-        m_stateStack.Back()->Release();
-        delete m_stateStack.Back();
-        m_stateStack.Back() = nullptr;
-        m_stateStack.PopBack();
+        for (size_t i = 0; i < se->nrOfPops; i++)
+        {
+            m_stateStack.Back()->Release();
+            delete m_stateStack.Back();
+            m_stateStack.Back() = nullptr;
+            m_stateStack.PopBack();
+        }
     case State::Push:
         _pushNewState(se);
         break;
@@ -154,15 +174,18 @@ void Game::_pushNewState(State::Event* se)
     {
     case State::Game:
         newState = new GameState();
-        newState->Init();
-        m_stateStack.PushBack(newState);
         break;
     case State::Menu:
-        //newState = new MenuState();
-        //newState->Init();
-        //m_stateStack.PushBack(newState);
+        newState = new MenuState();
+        break;
+    case State::Pause:
+        newState = new PauseState();
         break;
     default:
+        return;
         break;
     }
+
+    newState->Init();
+    m_stateStack.PushBack(newState);
 }

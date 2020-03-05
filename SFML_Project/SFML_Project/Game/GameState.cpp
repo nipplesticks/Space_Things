@@ -33,7 +33,10 @@ void GameState::Update(float dt, State::Event* e)
 {
     bool pop = sf::Keyboard::isKeyPressed(sf::Keyboard::Escape);
     if (pop)
-        e->stackEvent = State::Pop;
+    {
+        e->stackEvent = State::Push;
+        e->newState = State::Pause;
+    }
 
     m_deltaTime = dt;
     m_deltaTime *= m_timeChanger;

@@ -17,6 +17,7 @@ TeamHandler::TeamHandler(size_t startUnits)
     m_selectedUnitsCountText.setCharacterSize(16);
     m_selectedUnitsCountText.setFillColor(sf::Color::White);
     m_unitCountText = m_selectedUnitsCountText;
+    m_quadTreeCleared = false;
 }
 
 void TeamHandler::SetNameAndTeamColor(const std::string& name, const sf::Color& color)
@@ -122,14 +123,18 @@ void TeamHandler::Update(float dt)
     _checkOwnedPlanets();
     _createUnits();
     _updateUnits(dt);
+    m_quadTreeCleared = true;
 }
 
 void TeamHandler::Draw(sf::RenderWindow* wnd)
 {
-    for (auto& u : m_units)
-    {
-        u.second.DrawAndUpdateQt(wnd);
-    }
+    if (m_quadTreeCleared)
+        for (auto& u : m_units)
+            u.second.DrawAndUpdateQt(wnd);
+    else
+        for (auto& u : m_units)
+            u.second.Draw(wnd);
+    m_quadTreeCleared = false;
 }
 
 void TeamHandler::DrawInfo(sf::RenderWindow* wnd)
