@@ -17,6 +17,8 @@ int main()
     window.setActive(false);
     std::thread gameThread(&Game::Run, &game, &window);
 
+    while (!game.IsRunning());
+
     while (window.isOpen())
     {
         sf::Event e;
@@ -28,6 +30,9 @@ int main()
                 game.Terminate();
             }
         }
+
+        if (!game.IsRunning())
+            window.close();
     }
 
     while (game.IsRunning());
