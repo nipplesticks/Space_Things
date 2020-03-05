@@ -55,6 +55,7 @@ private:
     bool m_drawSelection;
 
     TeamHandler m_player;
+    TeamHandler m_enemy;
     Container::Vector::Vector<Planet> m_planets;
     Planet* m_planetHover;
 

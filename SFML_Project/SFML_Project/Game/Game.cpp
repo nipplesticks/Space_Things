@@ -143,9 +143,19 @@ void Game::_loadMap()
     m_planets[0].SetColor(sf::Color::Green);
     m_planets[0].SetCurrentLevel(1);
 
+    m_planets[planetsPtr.Size() - 1].SetTeam("Enemy");
+    m_planets[planetsPtr.Size() - 1].SetColor(sf::Color::Red);
+    m_planets[planetsPtr.Size() - 1].SetCurrentLevel(1);
+
+
     m_player.SetPlanetPointers(planetsPtr);
     m_player.SetNameAndTeamColor("Player", sf::Color::Green);
     m_player.SetStartPlanet(0);
+
+    m_enemy.SetPlanetPointers(planetsPtr);
+    m_enemy.SetNameAndTeamColor("Enemy", sf::Color::Red);
+    m_enemy.SetStartPlanet(planetsPtr.Size() - 1);
+
 }
 
 void Game::_handleInput()
@@ -203,6 +213,7 @@ void Game::_update()
         m_speedButtons[i].Update(m_deltaTime);
 
     m_player.Update(m_deltaTime);
+    m_enemy.Update(m_deltaTime);
     for (size_t i = 0; i < m_planets.Size(); i++)
         m_planets[i].Update(m_deltaTime);
 
@@ -228,6 +239,7 @@ void Game::_draw()
         m_planets[i].Draw(m_wndPtr);
 
     m_player.Draw(m_wndPtr);
+    m_enemy.Draw(m_wndPtr);
 
     if (m_planetHover)
         m_planetHover->DrawInfo(m_wndPtr);
@@ -235,6 +247,7 @@ void Game::_draw()
     if (m_drawSelection)
         m_wndPtr->draw(m_selection);
 
+    m_enemy.DrawInfo(m_wndPtr);
     m_player.DrawInfo(m_wndPtr);
 
     for (size_t i = 0; i < m_speedButtons.Size(); i++)
