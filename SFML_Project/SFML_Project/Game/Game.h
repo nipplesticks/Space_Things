@@ -9,6 +9,7 @@
 #include "TeamHandler.h"
 #include "Button.h"
 #include "GameState.h"
+#include "MenuState.h"
 
 class Game
 {

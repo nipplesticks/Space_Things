@@ -326,6 +326,7 @@ namespace Container
         template<class T>
         inline void Vector<T>::Resize(size_t size)
         {
+            if (!m_data) return;
             T* Data = new T[size];
 
             for (size_t i = 0; i < size; i++)

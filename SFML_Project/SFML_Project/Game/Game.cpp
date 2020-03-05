@@ -43,7 +43,7 @@ void Game::Init()
     m_frameCounter = 0;
     m_timer = 0.0f;
 
-    m_stateStack.PushBack(new GameState());
+    m_stateStack.PushBack(new MenuState());
     m_stateStack.Back()->Init();
 }
 
