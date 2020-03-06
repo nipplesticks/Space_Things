@@ -2,7 +2,7 @@
 #define _QUAD_TREE_H_
 
 #include <SFML/Graphics.hpp>
-#include "../Utility/vector.h"
+#include "../../Utility/vector.h"
 
 template <class T>
 class QuadTree

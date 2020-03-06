@@ -3,14 +3,10 @@
 
 #include <iostream>
 #include <string>
-#include "Globals.h"
-#include "Planet.h"
-#include "Unit.h"
-#include "TeamHandler.h"
-#include "Button.h"
-#include "GameState.h"
-#include "MenuState.h"
-#include "PauseState.h"
+#include "Structures/Globals.h"
+#include "States/GameState.h"
+#include "States/MenuState.h"
+#include "States/PauseState.h"
 
 class Game
 {

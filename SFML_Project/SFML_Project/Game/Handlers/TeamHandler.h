@@ -2,11 +2,11 @@
 #define _TEAM_HANDLER_H_
 
 #include <string>
-#include "Planet.h"
-#include "Unit.h"
+#include "../GameObjects/Planet.h"
+#include "../GameObjects/Unit.h"
 #include <unordered_map>
-#include "../Utility/Timer.h"
-#include "../Utility/vector.h"
+#include "../../Utility/Timer.h"
+#include "../../Utility/vector.h"
 
 typedef long long unsigned int U64;
 

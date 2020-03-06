@@ -2,8 +2,8 @@
 #define _MENU_STATE_H_
 
 #include "State.h"
-#include "Button.h"
-#include "../Utility/vector.h"
+#include "../GUI/Button.h"
+#include "../../Utility/vector.h"
 
 class MenuState : public State
 {

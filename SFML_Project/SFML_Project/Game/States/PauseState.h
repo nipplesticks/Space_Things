@@ -2,8 +2,8 @@
 #define _PAUSE_STATE_H_
 
 #include "State.h"
-#include "../Utility/vector.h"
-#include "Button.h"
+#include "../../Utility/vector.h"
+#include "../GUI/Button.h"
 
 class PauseState : public State
 {

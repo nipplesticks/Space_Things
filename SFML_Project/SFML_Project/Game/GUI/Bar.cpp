@@ -1,5 +1,5 @@
 #include "Bar.h"
-#include "Globals.h"
+#include "../Structures/Globals.h"
 Bar::Bar()
 {
     m_maxValue = 100.0f;

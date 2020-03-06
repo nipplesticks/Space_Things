@@ -1,5 +1,4 @@
 #include "Game.h"
-#include "Globals.h"
 
 sf::Font Global::g_font;
 sf::Vector2f Global::g_mousePos = sf::Vector2f(0, 0);

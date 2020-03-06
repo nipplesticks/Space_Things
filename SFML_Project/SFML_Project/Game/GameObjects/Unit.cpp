@@ -1,8 +1,8 @@
 #include "Unit.h"
 #include "Planet.h"
 #include <DirectXMath.h>
-#include "Globals.h"
-#include "../Utility/vector.h"
+#include "../Structures/Globals.h"
+#include "../../Utility/vector.h"
 
 using namespace Container::Vector;
 

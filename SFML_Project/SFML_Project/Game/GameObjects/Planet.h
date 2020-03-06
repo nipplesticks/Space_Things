@@ -2,10 +2,10 @@
 #define _PLANET_H_
 
 #include <SFML/Graphics.hpp>
-#include "../Utility/Timer.h"
-#include "../Utility/vector.h"
+#include "../../Utility/Timer.h"
+#include "../../Utility/vector.h"
 #include <string>
-#include "Bar.h"
+#include "../GUI/Bar.h"
 
 class Planet
 {

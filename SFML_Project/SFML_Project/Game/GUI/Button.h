@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <functional>
-#include "Globals.h"
+#include "../Structures/Globals.h"
 
 template <class T>
 class Button

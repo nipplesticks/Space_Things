@@ -4,11 +4,11 @@
 #include "State.h"
 #include <iostream>
 #include <string>
-#include "Globals.h"
-#include "Planet.h"
-#include "Unit.h"
-#include "TeamHandler.h"
-#include "Button.h"
+#include "../Structures/Globals.h"
+#include "../GameObjects/Planet.h"
+#include "../GameObjects/Unit.h"
+#include "../Handlers/TeamHandler.h"
+#include "../GUI/Button.h"
 
 class GameState : public State
 {

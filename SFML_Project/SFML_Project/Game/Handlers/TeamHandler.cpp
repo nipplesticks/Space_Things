@@ -1,5 +1,5 @@
 #include "TeamHandler.h"
-#include "Globals.h"
+#include "../Structures/Globals.h"
 
 using namespace Container::Vector;
 

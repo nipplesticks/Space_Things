@@ -1,5 +1,5 @@
 #include "Planet.h"
-#include "Globals.h"
+#include "../Structures/Globals.h"
 
 int Planet::MAX_INCREMENT_LEVEL = 100;
 sf::Color Planet::NEUTRAL_COLOR = sf::Color(128, 128, 128);
