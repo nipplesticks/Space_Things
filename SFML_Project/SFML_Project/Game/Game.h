@@ -7,6 +7,7 @@
 #include "States/GameState.h"
 #include "States/MenuState.h"
 #include "States/PauseState.h"
+#include "States/LevelEditorState.h"
 
 class Game
 {
