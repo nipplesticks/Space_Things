@@ -42,11 +42,10 @@ void MenuState::Init()
     {
         m_buttons[i].SetPosition(xPosition, offset * 2.5f + (sizeY + offset) * (float)i);
         m_buttons[i].SetSize(sizeX, sizeY);
-        m_buttons[i].SetOrigin(sizeX * 0.5f, sizeY * 0.5f);
+        m_buttons[i].SetOrigin(0.5f, 0.5f);
         m_buttons[i].RegisterFunction(funcs[i]);
         m_buttons[i].SetTextString(str[i]);
-        auto fr = m_buttons[i].GetText().getGlobalBounds();
-        m_buttons[i].SetTextOrigin(fr.width * 0.5f, fr.height * 0.5f);
+        m_buttons[i].SetTextOrigin(0.5f, 0.5f);
     }
 }
 

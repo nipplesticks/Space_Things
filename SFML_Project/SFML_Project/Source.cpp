@@ -6,6 +6,7 @@ sf::Vector2f Global::g_windowSize = sf::Vector2f(1280, 720);
 
 int main()
 {
+    Global::g_font.loadFromFile("AGENCYB.TTF");
     sf::VideoMode desktop = sf::VideoMode::getDesktopMode();
     
     sf::RenderWindow window(sf::VideoMode(1280, 720, desktop.bitsPerPixel), "Planet_stuff");

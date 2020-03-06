@@ -21,8 +21,7 @@ private:
     void _quit();
 private:
     Event* m_eventPtr;
-    sf::RectangleShape m_background;
-    sf::Text m_pause;
+    Button<void()> m_background;
     Container::Vector::Vector<Button<void(void)>> m_buttons;
 };
 

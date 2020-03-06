@@ -14,9 +14,9 @@ Game::Game()
     m_deltaTime = 0.0f;
     m_frameCounter = 0;
     m_timer = 0.0f;
-    m_fps.setCharacterSize(16);
-    m_otherInfo.setCharacterSize(16);
-    m_frameTime.setCharacterSize(16);
+    m_fps.SetTextSize(16);
+    m_otherInfo.SetTextSize(16);
+    m_frameTime.SetTextSize(16);
 }
 
 Game::~Game()
@@ -26,16 +26,28 @@ Game::~Game()
 
 void Game::Init()
 {
-    Global::g_font.loadFromFile("AGENCYB.TTF");
     Global::g_unitQuadtree.Init(sf::Vector2f(-5000, -5000), sf::Vector2f(5000, 5000), 10U);
     Planet::MAX_INCREMENT_LEVEL = 100;
+    ButtonColor col;
+    col.Hover = sf::Color::Transparent;
+    col.Idle = sf::Color::Transparent;
+    col.Press = sf::Color::Transparent;
 
-    m_fps.setFont(Global::g_font);
-    m_fps.setFillColor(sf::Color::White);
-    m_frameTime.setFont(Global::g_font);
-    m_frameTime.setFillColor(sf::Color::White);
-    m_frameTime.setPosition(0.0f, m_fps.getCharacterSize() + 2);
-    m_otherInfo = m_frameTime;
+    m_fps.SetBackgroundColor(col);
+    m_fps.SetForegroundColor(col);
+    m_fps.SetTextColor(sf::Color::White);
+
+    m_frameTime.SetBackgroundColor(col);
+    m_frameTime.SetForegroundColor(col);
+    m_frameTime.SetTextColor(sf::Color::White);
+    m_frameTime.SetPosition(0, 20);
+
+    m_otherInfo.SetBackgroundColor(col);
+    m_otherInfo.SetForegroundColor(col);
+    m_otherInfo.SetTextColor(sf::Color::White);
+    m_otherInfo.SetPosition(0, 20 * 2);
+
+    
     m_isRunning = false;
     m_terminated = false;
     m_deltaTime = 0.0f;
@@ -88,18 +100,6 @@ void Game::Run(sf::RenderWindow* wnd)
                 Global::g_mousePos.y = Global::g_mousePos.y * size.y * zoom;
                 Global::g_mousePos = Global::g_mousePos + pos;
 
-                sf::Vector2f cPos = c->GetPosition();
-                sf::Vector2f cSize = c->GetSize();
-                float cZoom = c->GetZoom();
-                float cRot = c->GetRotation();
-
-
-                // TODO, fix position according to rotation
-                // TODO, fix scaling depending on zoom
-                m_fps.setPosition(cPos - cSize * 0.5f);
-                m_fps.setRotation(cRot);
-                m_frameTime.setPosition(cPos - cSize * 0.5f + sf::Vector2f(0, m_fps.getCharacterSize() + 2));
-                m_frameTime.setRotation(cRot);
             }
 
             State::Event se;
@@ -145,9 +145,12 @@ void Game::Run(sf::RenderWindow* wnd)
                     for (;i < m_stateStack.Size(); i++)
                         m_stateStack[i]->Draw(m_wndPtr);
 
-                    m_wndPtr->draw(m_fps);
-                    m_wndPtr->draw(m_frameTime);
-                    m_wndPtr->draw(m_otherInfo);
+                    m_fps.Update(m_deltaTime);
+                    m_frameTime.Update(m_deltaTime);
+                    m_otherInfo.Update(m_deltaTime);
+                    m_fps.Draw(m_wndPtr);
+                    m_frameTime.Draw(m_wndPtr);
+                    m_otherInfo.Draw(m_wndPtr);
                     m_wndPtr->display();
                 }
                 _updateGameTimer();
@@ -186,8 +189,8 @@ void Game::_updateGameTimer()
 {
     if (m_timer >= 1.0f)
     {
-        m_fps.setString("FPS: " + std::to_string(m_frameCounter));
-        m_frameTime.setString(std::to_string((m_timer * 1000.0f) / (float)m_frameCounter) + " ms/frame");
+        m_fps.SetTextString("FPS: " + std::to_string(m_frameCounter));
+        m_frameTime.SetTextString(std::to_string((m_timer * 1000.0f) / (float)m_frameCounter) + " ms/frame");
         m_timer -= 1.0f;
         m_frameCounter = 0;
     }

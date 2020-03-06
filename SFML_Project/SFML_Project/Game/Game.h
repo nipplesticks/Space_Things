@@ -40,9 +40,9 @@ private:
     size_t m_frameCounter;
     float m_timer;
 
-    sf::Text m_fps;
-    sf::Text m_frameTime;
-    sf::Text m_otherInfo;
+    Button<void()> m_fps;
+    Button<void()> m_frameTime;
+    Button<void()> m_otherInfo;
 
     Container::Vector::Vector<State*> m_stateStack;
 };

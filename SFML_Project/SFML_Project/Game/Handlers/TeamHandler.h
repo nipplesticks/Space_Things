@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include "../../Utility/Timer.h"
 #include "../../Utility/vector.h"
+#include "../GUI/Button.h"
 
 typedef long long unsigned int U64;
 
@@ -44,9 +45,10 @@ private:
     Container::Vector::Vector<U64> m_selectedUnits;
     Container::Vector::Vector<Planet*> m_pPlanets;
     Container::Vector::Vector<Planet*> m_pOwnedPlanets;
+    
 
-    sf::Text m_unitCountText;
-    sf::Text m_selectedUnitsCountText;
+    Button<void()> m_unitCountText;
+    Button<void()> m_selectedUnitsCountText;
     bool m_quadTreeCleared;
 };
 

@@ -6,6 +6,7 @@
 #include "../../Utility/vector.h"
 #include <string>
 #include "../GUI/Bar.h"
+#include "../Structures/Camera.h"
 
 class Planet
 {
@@ -63,6 +64,7 @@ private:
     void _updateText();
     void _updateLevelIndicator();
     void _updateIndicators();
+    void _adjustInfo();
 
 private:
     sf::CircleShape m_shape;
@@ -73,8 +75,10 @@ private:
     Bar m_destructionIndicator;
 
     Container::Vector::Vector<sf::CircleShape> m_levelIndicator;
+    Container::Vector::Vector<sf::Vector2f> m_levelIndicatorPos;
     std::string m_team;
     sf::Text m_text;
+    sf::Vector2f m_textPos;
     int m_levelUpCounter;
     int m_destructionCounter;
     int m_currentLevel;

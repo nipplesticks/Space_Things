@@ -11,11 +11,15 @@ TeamHandler::TeamHandler(size_t startUnits)
         Unit u;
         m_units.insert(std::make_pair(u.GetId(), u));
     }
+    ButtonColor col;
+    memset(&col, 0, sizeof(col));
+
     m_teamName = "";
     m_timer = 0.f;
-    m_selectedUnitsCountText.setFont(Global::g_font);
-    m_selectedUnitsCountText.setCharacterSize(16);
-    m_selectedUnitsCountText.setFillColor(sf::Color::White);
+    m_selectedUnitsCountText.SetBackgroundColor(col);
+    m_selectedUnitsCountText.SetForegroundColor(col);
+    m_selectedUnitsCountText.SetTextSize(16);
+    m_selectedUnitsCountText.SetTextColor(sf::Color::White);
     m_unitCountText = m_selectedUnitsCountText;
     m_quadTreeCleared = false;
 }
@@ -120,6 +124,8 @@ void TeamHandler::Update(float dt)
     m_timer += dt;
     _removeDeadUnits();
     _updateInfo();
+    m_selectedUnitsCountText.Update(dt);
+    m_unitCountText.Update(dt);
     _checkOwnedPlanets();
     _createUnits();
     _updateUnits(dt);
@@ -139,8 +145,8 @@ void TeamHandler::Draw(sf::RenderWindow* wnd)
 
 void TeamHandler::DrawInfo(sf::RenderWindow* wnd)
 {
-    wnd->draw(m_unitCountText);
-    wnd->draw(m_selectedUnitsCountText);
+    m_selectedUnitsCountText.Draw(wnd);
+    m_unitCountText.Draw(wnd);
 }
 
 void TeamHandler::_checkOwnedPlanets()
@@ -158,14 +164,12 @@ void TeamHandler::_checkOwnedPlanets()
 
 void TeamHandler::_updateInfo()
 {
-    m_unitCountText.setString("Total Units: " + std::to_string(m_units.size()));
-    m_selectedUnitsCountText.setString("Selection: " + std::to_string(m_selectedUnits.Size()));
-    auto fr = m_unitCountText.getGlobalBounds();
-    m_unitCountText.setOrigin(sf::Vector2f(fr.width + 2, 0.0f));
-    m_unitCountText.setPosition(Global::g_windowSize.x, 0.0f);
-    fr = m_selectedUnitsCountText.getGlobalBounds();
-    m_selectedUnitsCountText.setOrigin(sf::Vector2f(fr.width + 2, 0.0f));
-    m_selectedUnitsCountText.setPosition(Global::g_windowSize.x, m_unitCountText.getCharacterSize() + 2);
+    m_unitCountText.SetTextString("Total Units: " + std::to_string(m_units.size()));
+    m_selectedUnitsCountText.SetTextString("Selection: " + std::to_string(m_selectedUnits.Size()));
+    m_unitCountText.SetTextOrigin(1.05f, 0.0f);
+    m_unitCountText.SetPosition(Global::g_windowSize.x, 0.0f);
+    m_selectedUnitsCountText.SetTextOrigin(1.05f, 0.0f);
+    m_selectedUnitsCountText.SetPosition(Global::g_windowSize.x, 20.0f);
 }
 
 void TeamHandler::_updateUnits(float dt)

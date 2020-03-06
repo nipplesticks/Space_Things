@@ -21,35 +21,32 @@ void PauseState::Init()
     float centerX = Global::g_windowSize.x * 0.5f;
     float centerY = Global::g_windowSize.y * 0.5f;
 
-    m_background.setSize(Global::g_windowSize * 0.5f);
+    m_background.SetSize(Global::g_windowSize * 0.5f);
     sf::Color c = sf::Color::Magenta;
     c.a = 64;
-    m_background.setFillColor(c);
-    m_background.setPosition(centerX, centerY);
-    m_background.setOrigin(Global::g_windowSize * 0.25f);
+    ButtonColor col;
+    col.Hover = c;
+    col.Idle = c;
+    col.Press = c;
 
-    m_pause.setFont(Global::g_font);
-    m_pause.setString("Pause");
-    m_pause.setFillColor(sf::Color::White);
-    m_pause.setCharacterSize(64.0f);
-    auto fr = m_pause.getGlobalBounds();
-    m_pause.setOrigin(sf::Vector2f(
-        fr.width * 0.5f, fr.height * 0.5f
-    ));
+    m_background.SetBackgroundColor(col);
+    m_background.SetForegroundColor(col);
+    m_background.SetPosition(centerX, centerY);
+    m_background.SetOrigin(0.5f, 0.5f);
+    m_background.SetTextString("Pause");
+    m_background.SetTextColor(sf::Color::White);
+    m_background.SetTextSize(64);
+    m_background.SetTextOrigin(0.5f, 3.0f);
     float startPoint =
-        m_background.getPosition().y - m_background.getSize().y * 0.5f;
+        m_background.GetPosition().y - m_background.GetBackgroundSize().y * 0.5f;
     float endPoint = 
-        m_background.getPosition().y + m_background.getSize().y * 0.5f;
+        m_background.GetPosition().y + m_background.GetBackgroundSize().y * 0.5f;
 
-    m_pause.setPosition(centerX,
-        startPoint + fr.height
-    );
+    startPoint = startPoint + 150.0f;
 
-    startPoint = startPoint + fr.height * 3.5f;
-
-    float sizeX = m_background.getSize().x * 0.5f;
+    float sizeX = m_background.GetBackgroundSize().x * 0.5f;
     float sizeY = (endPoint - startPoint) / (float)m_buttons.Size();
-    float offset = fr.height * 0.25f;
+    float offset = 32.0f * 0.25f;
 
     std::function<void(void)> funcs[] = {
         std::bind(&PauseState::_continue, this),
@@ -67,11 +64,10 @@ void PauseState::Init()
     {
         m_buttons[i].SetPosition(centerX, startPoint + (sizeY + offset) * (float)i);
         m_buttons[i].SetSize(sizeX, sizeY);
-        m_buttons[i].SetOrigin(sizeX * 0.5f, sizeY * 0.5f);
+        m_buttons[i].SetOrigin(0.5f, 0.5f);
         m_buttons[i].RegisterFunction(funcs[i]);
         m_buttons[i].SetTextString(str[i]);
-        auto fr = m_buttons[i].GetText().getGlobalBounds();
-        m_buttons[i].SetTextOrigin(fr.width * 0.5f, fr.height * 0.5f);
+        m_buttons[i].SetTextOrigin(0.5f, 0.5f);
     }
 }
 
@@ -81,6 +77,7 @@ void PauseState::Update(float dt, Event* e)
 
     for (size_t i = 0; i < m_buttons.Size(); i++)
         m_buttons[i].Update(dt);
+    m_background.Update(dt);
 }
 
 void PauseState::Release()
@@ -90,8 +87,7 @@ void PauseState::Release()
 
 void PauseState::Draw(sf::RenderWindow* wnd)
 {
-    wnd->draw(m_background);
-    wnd->draw(m_pause);
+    m_background.Draw(wnd);
 
     for (size_t i = 0; i < m_buttons.Size(); i++)
         m_buttons[i].Draw(wnd);

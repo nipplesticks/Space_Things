@@ -89,7 +89,7 @@ void GameState::_setupButtons()
         m_speedButtons[i].SetPosition(i * size + 1, pos);
         m_speedButtons[i].RegisterFunction(funcs[i]);
         m_speedButtons[i].SetTextString(str[i]);
-        m_speedButtons[i].SetTextOrigin(-8.0f, 0.0f);
+        m_speedButtons[i].SetTextOrigin(-1.0f, 0.0f);
     }
 }
 

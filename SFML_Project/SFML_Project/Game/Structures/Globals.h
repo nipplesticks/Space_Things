@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include "QuadTree.h"
-
+#include <DirectXMath.h>
 class Unit;
 
 namespace Global
@@ -17,6 +17,7 @@ namespace Global
     sf::Color LerpColor(const sf::Color& _a, const sf::Color& _b, float t);
     float RadiansToDegreese(float rad);
     float DegreeseToRadians(float deg);
+    sf::Vector2f Rotate(const sf::Vector2f& v, float deg);
 
 }
 
@@ -41,6 +42,14 @@ inline float Global::RadiansToDegreese(float rad)
 inline float Global::DegreeseToRadians(float deg)
 {
     return deg * (Global::g_PI / 180.0f);
+}
+inline sf::Vector2f Global::Rotate(const sf::Vector2f& v, float deg)
+{
+    using namespace DirectX;
+    XMFLOAT3 urp = { v.x, 0.0f, v.y };
+    XMFLOAT3 rp;
+    XMStoreFloat3(&rp, XMVector3Transform(XMLoadFloat3(&urp), XMMatrixRotationRollPitchYaw(0.0f, Global::DegreeseToRadians(deg), 0.0f)));
+    return sf::Vector2f(rp.x, rp.z);
 }
 
 #endif

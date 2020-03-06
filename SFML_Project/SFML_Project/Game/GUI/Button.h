@@ -6,16 +6,16 @@
 #include "../Structures/Globals.h"
 #include "../Structures/Camera.h"
 
+struct ButtonColor
+{
+    sf::Color Idle = sf::Color(128, 0, 0);
+    sf::Color Hover = sf::Color(255, 0, 0);
+    sf::Color Press = sf::Color::White;
+};
+
 template <class T>
 class Button
 {
-public:
-    struct ButtonColor
-    {
-        sf::Color Idle = sf::Color(128,0,0);
-        sf::Color Hover = sf::Color(255,0,0);
-        sf::Color Press = sf::Color::White;
-    };
 public:
     Button();
     ~Button() {}
@@ -76,6 +76,10 @@ private:
     sf::Vector2f m_backgroundSize;
     float m_characterSize;
 
+    sf::Vector2f m_foregroundOrigin;
+    sf::Vector2f m_backgroundOrigin;
+    sf::Vector2f m_textOrigin;
+
     bool m_pressed;
     bool m_hasFunction;
 
@@ -89,6 +93,9 @@ inline Button<T>::Button()
     m_text.setFillColor(sf::Color::Black);
     m_pressed = false;
     m_hasFunction = false;
+    m_foregroundOrigin = sf::Vector2f(0, 0);
+    m_backgroundOrigin = sf::Vector2f(0, 0);
+    m_textOrigin = sf::Vector2f(0, 0);
     SetPosition(0, 0);
     SetSize(32, 32);
     SetTextSize(m_text.getCharacterSize());
@@ -101,9 +108,6 @@ inline void Button<T>::SetPosition(float x, float y)
 template <class T>
 inline void Button<T>::SetPosition(const sf::Vector2f& position)
 {
-    m_background.setPosition(position);
-    m_foreground.setPosition(position);
-    m_text.setPosition(position);
     m_position = position;
 }
 template <class T>
@@ -125,7 +129,6 @@ inline void Button<T>::SetBackgroundSize(float x, float y)
 template <class T>
 inline void Button<T>::SetBackgroundSize(const sf::Vector2f& size)
 {
-    m_background.setSize(size);
     m_backgroundSize = size;
 }
 template <class T>
@@ -136,14 +139,13 @@ inline void Button<T>::SetForegroundSize(float x, float y)
 template <class T>
 inline void Button<T>::SetForegroundSize(const sf::Vector2f& size)
 {
-    m_foreground.setSize(size);
     m_foregroundSize = size;
 }
 template <class T>
 inline void Button<T>::SetTextSize(int characterSize)
 {
-    m_text.setCharacterSize(characterSize);
     m_characterSize = characterSize;
+    m_text.setCharacterSize(characterSize);
 }
 template <class T>
 inline void Button<T>::SetTextColor(const sf::Color& col)
@@ -169,7 +171,7 @@ inline void Button<T>::SetForegroundOrigin(float x, float y)
 template <class T>
 inline void Button<T>::SetForegroundOrigin(const sf::Vector2f& origin)
 {
-    m_foreground.setOrigin(origin);
+    m_foregroundOrigin = origin;
 }
 template <class T>
 inline void Button<T>::SetBackgroundOrigin(float x, float y)
@@ -179,7 +181,7 @@ inline void Button<T>::SetBackgroundOrigin(float x, float y)
 template <class T>
 inline void Button<T>::SetBackgroundOrigin(const sf::Vector2f& origin)
 {
-    m_background.setOrigin(origin);
+    m_backgroundOrigin = origin;
 }
 template <class T>
 inline void Button<T>::SetTextOrigin(float x, float y)
@@ -189,7 +191,7 @@ inline void Button<T>::SetTextOrigin(float x, float y)
 template <class T>
 inline void Button<T>::SetTextOrigin(const sf::Vector2f& origin)
 {
-    m_text.setOrigin(origin);
+    m_textOrigin = origin;
 }
 template <class T>
 inline void Button<T>::SetTextString(const std::string& str)
@@ -230,17 +232,18 @@ inline const sf::Text& Button<T>::GetText() const
 template <class T>
 inline const sf::Vector2f& Button<T>::GetForegroundSize() const
 {
-    return m_foreground.getSize();
+
+    return m_foregroundSize;
 }
 template <class T>
 inline const sf::Vector2f& Button<T>::GetBackgroundSize() const
 {
-    return m_background.getSize();
+    return m_backgroundSize;
 }
 template <class T>
 inline const sf::Vector2f& Button<T>::GetPosition() const
 {
-    return m_background.getSize();
+    return m_position;
 }
 template <class T>
 inline void Button<T>::Update(float dt)
@@ -289,26 +292,41 @@ inline void Button<T>::_adaptToCamera()
     Camera* c = Camera::GetActiveCamera();
 
     sf::Vector2f cPos = c->GetPosition();
-    sf::Vector2f cSize = c->GetSize();
     float cZoom = c->GetZoom();
+    sf::Vector2f cSize = c->GetSize();
     float cRot = c->GetRotation();
 
     m_background.setSize(m_backgroundSize * cZoom);
+    m_background.setOrigin(sf::Vector2f(
+        m_backgroundSize.x * cZoom * m_backgroundOrigin.x,
+        m_backgroundSize.y * cZoom * m_backgroundOrigin.y
+    ));
     m_foreground.setSize(m_foregroundSize * cZoom);
-    m_text.setCharacterSize((unsigned int)(m_characterSize * cZoom + 0.5f));
+    m_foreground.setOrigin(sf::Vector2f(
+        m_foregroundSize.x * cZoom * m_foregroundOrigin.x,
+        m_foregroundSize.y * cZoom * m_foregroundOrigin.y
+    ));
+    m_text.setScale(sf::Vector2f(cZoom, cZoom));
+
+    auto fr = m_text.getLocalBounds();
+    m_text.setOrigin(
+        fr.width * m_textOrigin.x,
+        fr.height * m_textOrigin.y
+    );
     m_background.setRotation(cRot);
     m_foreground.setRotation(cRot);
     m_text.setRotation(cRot);
 
     using namespace DirectX;
 
-    sf::Vector2f unRotatedPosition = cPos - cSize * 0.5f + m_position;
+    sf::Vector2f unRotatedPosition = (-cSize * 0.5f + m_position) * cZoom;
     XMFLOAT3 urp = { unRotatedPosition.x, 0.0f, unRotatedPosition.y };
     XMFLOAT3 rp;
     XMStoreFloat3(&rp, XMVector3Transform(XMLoadFloat3(&urp), XMMatrixRotationRollPitchYaw(0.0f, Global::DegreeseToRadians(-cRot), 0.0f)));
 
 
     sf::Vector2f rotatedPosition(rp.x, rp.z);
+    rotatedPosition = rotatedPosition + cPos;
 
     m_background.setPosition(rotatedPosition);
     m_foreground.setPosition(rotatedPosition);

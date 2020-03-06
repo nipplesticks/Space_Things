@@ -119,6 +119,7 @@ void Planet::SetMaxLevel(int maxLevel)
 {
     m_maxLevel = maxLevel;
     m_levelIndicator = Vector<sf::CircleShape>(m_maxLevel - 1, m_maxLevel - 1);
+    m_levelIndicatorPos = Vector<sf::Vector2f>(m_maxLevel - 1, m_maxLevel - 1);
     _updateFromLevel();
     _updateText();
     _updateLevelIndicator();
@@ -257,6 +258,7 @@ int Planet::GetDestructionIncrement() const
 
 void Planet::Update(float dt)
 {
+    _adjustInfo();
     m_levelUpIndicator.Update(dt);
     m_destructionIndicator.Update(dt);
 
@@ -296,10 +298,10 @@ void Planet::_updateFromLevel()
 
 void Planet::_updateText()
 {
-    auto gb = m_text.getGlobalBounds();
+    auto gb = m_text.getLocalBounds();
     m_text.setOrigin(sf::Vector2f(gb.width * 0.5f, gb.height * 0.5f));
     sf::Vector2f pos = GetPosition();
-    m_text.setPosition(pos - sf::Vector2f(0, GetRadius() + gb.height));
+    m_textPos = pos - sf::Vector2f(0, GetRadius() + gb.height);
 }
 
 void Planet::_updateLevelIndicator()
@@ -314,7 +316,7 @@ void Planet::_updateLevelIndicator()
         m_levelIndicator[i].setOutlineColor(sf::Color::Black);
         m_levelIndicator[i].setRadius(r);
         m_levelIndicator[i].setOrigin(sf::Vector2f(r, r));
-        m_levelIndicator[i].setPosition(GetPosition() + sf::Vector2f((i * r * 2) - width, GetRadius() + r * 2));
+        m_levelIndicatorPos[i] = GetPosition() + (sf::Vector2f((i * r * 2) - width, GetRadius() + r * 2));
     }
 
     for (int i = 1; i < m_currentLevel; i++)
@@ -338,4 +340,34 @@ void Planet::_updateIndicators()
 
     m_levelUpIndicator.SetCurrentValue((float)m_levelUpCounter);
     m_destructionIndicator.SetCurrentValue((float)m_destructionCounter);
+}
+
+#include <DirectXMath.h>
+void Planet::_adjustInfo()
+{
+    using namespace DirectX;
+    Camera* c = Camera::GetActiveCamera();
+
+    sf::Vector2f cPos = c->GetPosition();
+    float cZoom = c->GetZoom();
+    sf::Vector2f cSize = c->GetSize();
+    float cRot = c->GetRotation();
+    
+    sf::Vector2f pos = GetPosition();
+    sf::Vector2f dir = (m_textPos - pos);
+    dir = Global::Rotate(dir, -cRot);
+    m_text.setScale(sf::Vector2f(cZoom, cZoom));
+    m_text.setRotation(cRot);
+    m_text.setPosition(pos + dir);
+
+    for (int i = 0; i < m_maxLevel - 1; i++)
+    {
+        sf::CircleShape* l = &m_levelIndicator[i];
+        dir = (m_levelIndicatorPos[i] - pos);
+        dir = Global::Rotate(dir, -cRot);
+
+        l->setScale(sf::Vector2f(cZoom, cZoom));
+        l->setRotation(cRot);
+        l->setPosition(pos + dir);
+    }
 }
