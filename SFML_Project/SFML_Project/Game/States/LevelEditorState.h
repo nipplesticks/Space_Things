@@ -14,7 +14,7 @@ public:
     void Release() override;
     void Draw(sf::RenderWindow* wnd) override;
 private:
-
+    Event* m_eventPtr;
 };
 
 #endif
