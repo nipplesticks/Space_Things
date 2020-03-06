@@ -63,8 +63,46 @@ void Game::Run(sf::RenderWindow* wnd)
 
         if (m_wndPtr->isOpen() && m_wndPtr->hasFocus())
         {
-            State::Event se;
             Global::g_mousePos = (sf::Vector2f)sf::Mouse::getPosition(*m_wndPtr); // Should be at the top section
+
+            Camera* c = Camera::GetActiveCamera();
+
+            if (c)
+            {
+                sf::Vector2f wSize = Global::g_windowSize;
+                sf::Vector2f wCenter = wSize * 0.5f;
+                Global::g_mousePos = Global::g_mousePos - wCenter; // Screen position from center to mp;
+                float rot = Global::DegreeseToRadians(c->GetRotation());
+                float x = Global::g_mousePos.x * std::cos(rot) - Global::g_mousePos.y * std::sin(rot);
+                float y = Global::g_mousePos.x * std::sin(rot) + Global::g_mousePos.y * std::cos(rot);
+                Global::g_mousePos.x = x;
+                Global::g_mousePos.y = y;
+
+                sf::Vector2f size = c->GetSize();
+                sf::Vector2f pos = c->GetPosition();
+                float zoom = c->GetZoom();
+                Global::g_mousePos.x = (Global::g_mousePos.x / wSize.x);
+                Global::g_mousePos.y = (Global::g_mousePos.y / wSize.y);
+                // Rotate
+                Global::g_mousePos.x = Global::g_mousePos.x * size.x * zoom;
+                Global::g_mousePos.y = Global::g_mousePos.y * size.y * zoom;
+                Global::g_mousePos = Global::g_mousePos + pos;
+
+                sf::Vector2f cPos = c->GetPosition();
+                sf::Vector2f cSize = c->GetSize();
+                float cZoom = c->GetZoom();
+                float cRot = c->GetRotation();
+
+
+                // TODO, fix position according to rotation
+                // TODO, fix scaling depending on zoom
+                m_fps.setPosition(cPos - cSize * 0.5f);
+                m_fps.setRotation(cRot);
+                m_frameTime.setPosition(cPos - cSize * 0.5f + sf::Vector2f(0, m_fps.getCharacterSize() + 2));
+                m_frameTime.setRotation(cRot);
+            }
+
+            State::Event se;
             if (!m_stateStack.Empty())
             {
                 m_stateStack.Back()->Update(m_deltaTime, &se);
@@ -73,6 +111,26 @@ void Game::Run(sf::RenderWindow* wnd)
                 {
                     m_wndPtr->clear();
 
+                    c = Camera::GetActiveCamera();
+                    if (c)
+                    {
+                        sf::View v = m_wndPtr->getView();
+                        sf::Vector2f cPos = c->GetPosition();
+                        sf::Vector2f cSiz = c->GetSize();
+                        float r = c->GetRotation();
+                        float z = c->GetZoom();
+
+                        sf::FloatRect fr;
+                        fr.left = cPos.x;
+                        fr.top = cPos.y;
+                        fr.width = cSiz.x;
+                        fr.height = cSiz.y;
+                        v.reset(fr);
+                        v.setRotation(r);
+                        v.zoom(z);
+                        v.setCenter(cPos);
+                        m_wndPtr->setView(v);
+                    }
                     size_t i = m_stateStack.Size() - 1;
 
                     if (i > 1)

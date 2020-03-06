@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <functional>
 #include "../Structures/Globals.h"
+#include "../Structures/Camera.h"
 
 template <class T>
 class Button
@@ -59,6 +60,9 @@ public:
     void Draw(sf::RenderWindow* wnd);
 
 private:
+    void _adaptToCamera();
+
+private:
     std::function<T> m_function;
 
     sf::RectangleShape m_background;
@@ -66,6 +70,11 @@ private:
 
     sf::RectangleShape m_foreground;
     ButtonColor m_foregroundColor;
+
+    sf::Vector2f m_position;
+    sf::Vector2f m_foregroundSize;
+    sf::Vector2f m_backgroundSize;
+    float m_characterSize;
 
     bool m_pressed;
     bool m_hasFunction;
@@ -82,6 +91,7 @@ inline Button<T>::Button()
     m_hasFunction = false;
     SetPosition(0, 0);
     SetSize(32, 32);
+    SetTextSize(m_text.getCharacterSize());
 }
 template <class T>
 inline void Button<T>::SetPosition(float x, float y)
@@ -94,6 +104,7 @@ inline void Button<T>::SetPosition(const sf::Vector2f& position)
     m_background.setPosition(position);
     m_foreground.setPosition(position);
     m_text.setPosition(position);
+    m_position = position;
 }
 template <class T>
 inline void Button<T>::SetSize(float x, float y)
@@ -115,6 +126,7 @@ template <class T>
 inline void Button<T>::SetBackgroundSize(const sf::Vector2f& size)
 {
     m_background.setSize(size);
+    m_backgroundSize = size;
 }
 template <class T>
 inline void Button<T>::SetForegroundSize(float x, float y)
@@ -125,11 +137,13 @@ template <class T>
 inline void Button<T>::SetForegroundSize(const sf::Vector2f& size)
 {
     m_foreground.setSize(size);
+    m_foregroundSize = size;
 }
 template <class T>
 inline void Button<T>::SetTextSize(int characterSize)
 {
     m_text.setCharacterSize(characterSize);
+    m_characterSize = characterSize;
 }
 template <class T>
 inline void Button<T>::SetTextColor(const sf::Color& col)
@@ -233,6 +247,8 @@ inline void Button<T>::Update(float dt)
 {
     bool press = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 
+    _adaptToCamera();
+    // TODO, take care of rotation
     if (m_foreground.getGlobalBounds().contains(Global::g_mousePos))
     {
         m_background.setFillColor(m_backgroundColor.Hover);
@@ -265,6 +281,39 @@ inline void Button<T>::Draw(sf::RenderWindow* wnd)
     wnd->draw(m_background);
     wnd->draw(m_foreground);
     wnd->draw(m_text);
+}
+#include <DirectXMath.h>
+template<class T>
+inline void Button<T>::_adaptToCamera()
+{
+    Camera* c = Camera::GetActiveCamera();
+
+    sf::Vector2f cPos = c->GetPosition();
+    sf::Vector2f cSize = c->GetSize();
+    float cZoom = c->GetZoom();
+    float cRot = c->GetRotation();
+
+    m_background.setSize(m_backgroundSize * cZoom);
+    m_foreground.setSize(m_foregroundSize * cZoom);
+    m_text.setCharacterSize((unsigned int)(m_characterSize * cZoom + 0.5f));
+    m_background.setRotation(cRot);
+    m_foreground.setRotation(cRot);
+    m_text.setRotation(cRot);
+
+    using namespace DirectX;
+
+    sf::Vector2f unRotatedPosition = cPos - cSize * 0.5f + m_position;
+    XMFLOAT3 urp = { unRotatedPosition.x, 0.0f, unRotatedPosition.y };
+    XMFLOAT3 rp;
+    XMStoreFloat3(&rp, XMVector3Transform(XMLoadFloat3(&urp), XMMatrixRotationRollPitchYaw(0.0f, Global::DegreeseToRadians(-cRot), 0.0f)));
+
+
+    sf::Vector2f rotatedPosition(rp.x, rp.z);
+
+    m_background.setPosition(rotatedPosition);
+    m_foreground.setPosition(rotatedPosition);
+    m_text.setPosition(rotatedPosition);
+
 }
 
 #endif

@@ -138,6 +138,8 @@
     <ClInclude Include="Game\GUI\Button.h" />
     <ClInclude Include="Game\Game.h" />
     <ClInclude Include="Game\States\GameState.h" />
+    <ClInclude Include="Game\States\LevelEditorState.h" />
+    <ClInclude Include="Game\Structures\Camera.h" />
     <ClInclude Include="Game\Structures\Globals.h" />
     <ClInclude Include="Game\States\MenuState.h" />
     <ClInclude Include="Game\States\PauseState.h" />
@@ -153,12 +155,14 @@
     <ClCompile Include="Game\GUI\Bar.cpp" />
     <ClCompile Include="Game\Game.cpp" />
     <ClCompile Include="Game\States\GameState.cpp" />
+    <ClCompile Include="Game\States\LevelEditorState.cpp" />
     <ClCompile Include="Game\States\MenuState.cpp" />
     <ClCompile Include="Game\States\PauseState.cpp" />
     <ClCompile Include="Game\GameObjects\Planet.cpp" />
     <ClCompile Include="Game\States\State.cpp" />
     <ClCompile Include="Game\Handlers\TeamHandler.cpp" />
     <ClCompile Include="Game\GameObjects\Unit.cpp" />
+    <ClCompile Include="Game\Structures\Camera.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

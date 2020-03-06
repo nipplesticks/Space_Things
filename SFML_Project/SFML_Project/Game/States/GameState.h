@@ -9,6 +9,7 @@
 #include "../GameObjects/Unit.h"
 #include "../Handlers/TeamHandler.h"
 #include "../GUI/Button.h"
+#include "../Structures/Camera.h"
 
 class GameState : public State
 {
@@ -47,6 +48,12 @@ private:
     Planet* m_planetHover;
 
     Container::Vector::Vector<Button<void(void)>> m_speedButtons;
+
+    float m_cameraSpeed = 100.0f;
+    float m_zoomSpeed = 0.1f;
+    float m_rotSpeed = 45.0f;
+
+    Camera m_gameCamera;
 };
 
 

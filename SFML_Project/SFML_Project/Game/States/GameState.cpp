@@ -31,6 +31,7 @@ void GameState::Init()
 
 void GameState::Update(float dt, State::Event* e)
 {
+    m_gameCamera.SetAsActive();
     bool pop = sf::Keyboard::isKeyPressed(sf::Keyboard::Escape);
     if (pop)
     {
@@ -132,6 +133,44 @@ void GameState::_handleInput()
 
     bool lMousePress = sf::Mouse::isButtonPressed(sf::Mouse::Left);
     bool rMousePress = sf::Mouse::isButtonPressed(sf::Mouse::Right);
+
+    bool lPress = sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
+    bool rPress = sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
+    bool uPress = sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
+    bool dPress = sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
+
+    bool pguPress = sf::Keyboard::isKeyPressed(sf::Keyboard::PageUp);
+    bool pgdPress = sf::Keyboard::isKeyPressed(sf::Keyboard::PageDown);
+
+    bool homePress = sf::Keyboard::isKeyPressed(sf::Keyboard::Home);
+    bool endPress = sf::Keyboard::isKeyPressed(sf::Keyboard::End);
+
+    sf::Vector2f offset(.0f, .0f);
+    float rot = 0.0f;
+    float zoom = 1.0f;
+
+    if (lPress)
+        offset.x -= m_deltaTime * m_cameraSpeed;
+    if (rPress)
+        offset.x += m_deltaTime * m_cameraSpeed;
+    if (uPress)
+        offset.y -= m_deltaTime * m_cameraSpeed;
+    if (dPress)
+        offset.y += m_deltaTime * m_cameraSpeed;
+
+    if (pguPress)
+        zoom += m_zoomSpeed * m_deltaTime;
+    if (pgdPress)
+        zoom -= m_zoomSpeed * m_deltaTime;
+
+    if (homePress)
+        rot += m_rotSpeed * m_deltaTime;
+    if (endPress)
+        rot -= m_rotSpeed * m_deltaTime;
+
+    m_gameCamera.Move(offset, true);
+    m_gameCamera.Rotate(rot);
+    m_gameCamera.MultiplyZoom(zoom);
 
     if (lMousePress && !Left_Mouse_Pressed)
     {

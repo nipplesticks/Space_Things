@@ -8,6 +8,7 @@
 #include "States/MenuState.h"
 #include "States/PauseState.h"
 #include "States/LevelEditorState.h"
+#include "Structures/Camera.h"
 
 class Game
 {
