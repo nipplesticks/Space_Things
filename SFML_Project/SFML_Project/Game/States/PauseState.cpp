@@ -5,6 +5,7 @@ PauseState::PauseState()
 {
     m_eventPtr = nullptr;
     m_drawBelow = true;
+    m_EscapePressed = true;
 }
 
 PauseState::~PauseState()
@@ -15,7 +16,6 @@ PauseState::~PauseState()
 void PauseState::Init()
 {
     m_eventPtr = nullptr;
-
     m_buttons = Vector<Button<void()>>(3, 3);
 
     float centerX = Global::g_windowSize.x * 0.5f;
@@ -74,6 +74,12 @@ void PauseState::Init()
 void PauseState::Update(float dt, Event* e)
 {
     m_eventPtr = e;
+    bool escPress = sf::Keyboard::isKeyPressed(sf::Keyboard::Escape);
+
+    if (escPress && !m_EscapePressed)
+        e->stackEvent = Pop;
+
+    m_EscapePressed = escPress;
 
     for (size_t i = 0; i < m_buttons.Size(); i++)
         m_buttons[i].Update(dt);

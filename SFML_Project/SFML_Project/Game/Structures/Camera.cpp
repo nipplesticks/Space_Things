@@ -1,3 +1,4 @@
+#include <DirectXMath.h>
 #include "Camera.h"
 #include "Globals.h"
 
@@ -123,4 +124,30 @@ float Camera::GetRotation() const
 float Camera::GetZoom() const
 {
     return m_zoom;
+}
+
+sf::Vector2f Camera::GetRelativeRight() const
+{
+    sf::Vector2f dir(1.0f, 0.0f);
+    float rot = Global::DegreeseToRadians(m_rotation);
+    float x = dir.x * std::cos(rot) - dir.y * std::sin(rot);
+    float y = dir.x * std::sin(rot) + dir.y * std::cos(rot);
+    dir = sf::Vector2f(x, y);
+
+    float l = sqrt(dir.x * dir.x + dir.y * dir.y);
+    dir = dir * (1.0f / l);
+    return dir;
+}
+
+sf::Vector2f Camera::GetRelativeUp() const
+{
+    sf::Vector2f dir(0.0f, -1.0f);
+    float rot = Global::DegreeseToRadians(m_rotation);
+    float x = dir.x * std::cos(rot) - dir.y * std::sin(rot);
+    float y = dir.x * std::sin(rot) + dir.y * std::cos(rot);
+    dir = sf::Vector2f(x, y);
+
+    float l = sqrt(dir.x * dir.x + dir.y * dir.y);
+    dir = dir * (1.0f / l);
+    return dir;
 }

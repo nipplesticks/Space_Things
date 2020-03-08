@@ -12,6 +12,7 @@ public:
         Game,
         Menu,
         Pause,
+        LevelEditor,
         Pop,
         PopPush,
         Push

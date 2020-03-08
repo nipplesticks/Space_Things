@@ -20,6 +20,7 @@ private:
     void _options();
     void _quit();
 private:
+    bool m_EscapePressed;
     Event* m_eventPtr;
     Button<void()> m_background;
     Container::Vector::Vector<Button<void(void)>> m_buttons;

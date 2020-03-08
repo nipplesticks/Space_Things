@@ -241,6 +241,9 @@ void Game::_pushNewState(State::Event* se)
     case State::Pause:
         newState = new PauseState();
         break;
+    case State::LevelEditor:
+        newState = new LevelEditorState();
+        break;
     default:
         return;
         break;

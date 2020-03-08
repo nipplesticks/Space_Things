@@ -35,7 +35,7 @@ private:
 
 private:
     float m_deltaTime;
-
+    bool m_escPressed;
     float m_timeChanger;
     bool m_hasSelection;
 

@@ -81,7 +81,8 @@ void MenuState::_selectLevel()
 
 void MenuState::_levelEditor()
 {
-
+    m_eventPtr->newState = LevelEditor;
+    m_eventPtr->stackEvent = Push;
 }
 
 void MenuState::_options()

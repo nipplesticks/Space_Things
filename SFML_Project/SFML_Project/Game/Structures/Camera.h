@@ -35,6 +35,9 @@ public:
     float GetRotation() const;
     float GetZoom() const;
 
+    sf::Vector2f GetRelativeRight() const;
+    sf::Vector2f GetRelativeUp() const;
+
 private:
     sf::Vector2f m_position;
     sf::Vector2f m_size;

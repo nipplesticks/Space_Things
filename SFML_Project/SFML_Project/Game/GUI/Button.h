@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <functional>
+#include <DirectXMath.h>
 #include "../Structures/Globals.h"
 #include "../Structures/Camera.h"
 
@@ -60,6 +61,7 @@ public:
     void Draw(sf::RenderWindow* wnd);
 
 private:
+    bool _contains(const sf::Vector2f & p);
     void _adaptToCamera();
 
 private:
@@ -250,9 +252,8 @@ inline void Button<T>::Update(float dt)
 {
     bool press = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 
-    _adaptToCamera();
     // TODO, take care of rotation
-    if (m_foreground.getGlobalBounds().contains(Global::g_mousePos))
+    if (_contains(Global::g_mousePos))
     {
         m_background.setFillColor(m_backgroundColor.Hover);
         m_foreground.setFillColor(m_foregroundColor.Hover);
@@ -277,6 +278,7 @@ inline void Button<T>::Update(float dt)
         m_foreground.setFillColor(m_foregroundColor.Idle);
     }
     m_pressed = press;
+    _adaptToCamera();
 }
 template <class T>
 inline void Button<T>::Draw(sf::RenderWindow* wnd)
@@ -285,7 +287,13 @@ inline void Button<T>::Draw(sf::RenderWindow* wnd)
     wnd->draw(m_foreground);
     wnd->draw(m_text);
 }
-#include <DirectXMath.h>
+
+template<class T>
+inline bool Button<T>::_contains(const sf::Vector2f& p)
+{
+    auto lb = m_foreground.getLocalBounds();
+    return lb.contains(m_foreground.getTransform().getInverse().transformPoint(p));
+}
 template<class T>
 inline void Button<T>::_adaptToCamera()
 {

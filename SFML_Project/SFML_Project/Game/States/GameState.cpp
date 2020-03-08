@@ -8,6 +8,7 @@ GameState::GameState()
     m_drawSelection = false;
     m_planetHover = nullptr;
     m_deltaTime = 0.0f;
+    m_escPressed = true;
 }
 
 GameState::~GameState()
@@ -24,7 +25,8 @@ void GameState::Init()
     m_planetHover = nullptr;
     m_timeChanger = 1.0f;
     m_hasSelection = false;
-
+    m_gameCamera.SetPosition(Global::g_windowSize * 0.5f);
+    m_escPressed = true;
     _setupButtons();
     _loadMap();
 }
@@ -33,11 +35,12 @@ void GameState::Update(float dt, State::Event* e)
 {
     m_gameCamera.SetAsActive();
     bool pop = sf::Keyboard::isKeyPressed(sf::Keyboard::Escape);
-    if (pop)
+    if (pop && !m_escPressed)
     {
         e->stackEvent = State::Push;
         e->newState = State::Pause;
     }
+    m_escPressed = pop;
 
     m_deltaTime = dt;
     m_deltaTime *= m_timeChanger;
