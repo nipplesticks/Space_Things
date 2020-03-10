@@ -334,7 +334,6 @@ inline void Button<T>::_adaptToCamera()
     XMFLOAT3 rp;
     XMStoreFloat3(&rp, XMVector3Transform(XMLoadFloat3(&urp), XMMatrixRotationRollPitchYaw(0.0f, Global::DegreeseToRadians(-cRot), 0.0f)));
 
-
     sf::Vector2f rotatedPosition(rp.x, rp.z);
     rotatedPosition = rotatedPosition + cPos;
 

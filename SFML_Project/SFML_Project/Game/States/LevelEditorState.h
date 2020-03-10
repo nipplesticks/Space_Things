@@ -5,6 +5,7 @@
 #include "../GameObjects/Planet.h"
 #include "../Structures/Camera.h"
 #include "../GUI/Button.h"
+#include "../Structures/Console.h"
 #include <unordered_map>
 
 class LevelEditorState : public State
@@ -54,6 +55,8 @@ private:
     Planet* m_planetPtr;
     float m_camSpeed;
 
+
+    Console m_console;
     bool m_drawSelection;
     bool m_DelPressed;
     bool m_LeftMousePressed;

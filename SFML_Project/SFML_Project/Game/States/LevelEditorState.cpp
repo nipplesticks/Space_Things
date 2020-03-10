@@ -64,6 +64,8 @@ void LevelEditorState::Update(float dt, Event* e)
         m_selections[j].setSize(sf::Vector2f(r * 2.0f, r * 2.0f));
         m_selections[j].setOrigin(sf::Vector2f(r, r));
     }
+
+    m_console.Update(m_deltaTime);
 }
 
 void LevelEditorState::Release()
@@ -91,6 +93,8 @@ void LevelEditorState::Draw(sf::RenderWindow* wnd)
         m_selections[i].setOutlineThickness(m_camera.GetZoom());
         wnd->draw(m_selections[i]);
     }
+
+    m_console.Draw(wnd);
 }
 
 void LevelEditorState::_setupButtons()
@@ -230,6 +234,8 @@ void LevelEditorState::_handleInput()
             m_planetInfo.insert(std::make_pair(&m_planets.Back(), PlanetInfo()));
             m_planetPtr = &m_planets.Back();
             m_planetPtr->Update(m_deltaTime);
+            m_console.PushString("Planet Created at x: " + std::to_string(p.GetPosition().x) + 
+            " y: " + std::to_string(p.GetPosition().y));
         }
         if (m_planetPtr && LeftMousePress)
         {
