@@ -44,12 +44,17 @@ void LevelEditorState::Update(float dt, Event* e)
 {
     m_eventPtr = e;
     m_deltaTime = dt;
-    _handleInput();
+    
+    bool buttonPress = false;
+
+    for (size_t i = 0; i < m_buttons.Size(); i++)
+        buttonPress = m_buttons[i].Update(dt) || buttonPress;
+
+    if (!buttonPress)
+        _handleInput();
 
     for (size_t i = 0; i < m_planets.Size(); i++)
         m_planets[i].Update(dt);
-    for (size_t i = 0; i < m_buttons.Size(); i++)
-        m_buttons[i].Update(dt);
 
     for (size_t j = 0; j < m_selectedPlanets.Size(); j++)
     {
@@ -82,7 +87,10 @@ void LevelEditorState::Draw(sf::RenderWindow* wnd)
         wnd->draw(m_selection);
 
     for (size_t i = 0; i < m_selections.Size(); i++)
+    {
+        m_selections[i].setOutlineThickness(m_camera.GetZoom());
         wnd->draw(m_selections[i]);
+    }
 }
 
 void LevelEditorState::_setupButtons()
@@ -127,6 +135,14 @@ void LevelEditorState::_handleInput()
         sf::Keyboard::isKeyPressed(sf::Keyboard::W);
     bool moveDown = sf::Keyboard::isKeyPressed(sf::Keyboard::Down) ||
         sf::Keyboard::isKeyPressed(sf::Keyboard::S);
+
+    bool zoomIn = sf::Keyboard::isKeyPressed(sf::Keyboard::PageUp);
+    bool zoomOut = sf::Keyboard::isKeyPressed(sf::Keyboard::PageDown);
+
+    if (zoomIn)
+        m_camera.MultiplyZoom(1.0 - m_deltaTime);
+    if (zoomOut)
+        m_camera.MultiplyZoom(1.0 + m_deltaTime);
 
     bool delPress = sf::Keyboard::isKeyPressed(sf::Keyboard::Delete);
 
@@ -184,6 +200,7 @@ void LevelEditorState::_handleInput()
             if (!m_planetPtr)
             {
                 m_selection.setSize(Global::g_mousePos - m_selection.getPosition());
+                m_selection.setOutlineThickness(m_camera.GetZoom());
                 m_drawSelection = true;
             }
             else
@@ -212,6 +229,7 @@ void LevelEditorState::_handleInput()
             m_planets.PushBack(p);
             m_planetInfo.insert(std::make_pair(&m_planets.Back(), PlanetInfo()));
             m_planetPtr = &m_planets.Back();
+            m_planetPtr->Update(m_deltaTime);
         }
         if (m_planetPtr && LeftMousePress)
         {
@@ -224,19 +242,24 @@ void LevelEditorState::_handleInput()
     }
 
     
-    if (delPress && !m_DelPressed && m_planetPtr)
+    if (delPress && !m_DelPressed && !m_selectedPlanets.Empty())
     {
-        m_planetInfo.erase(m_planetPtr);
-
-        for (size_t i = 0; i < m_planets.Size(); i++)
+        int size = m_selectedPlanets.Size() - 1;
+        for (int i = size; i >= 0; i--)
         {
-            if (&m_planets[i] == m_planetPtr)
+            m_planetInfo.erase(m_selectedPlanets[i]);
+            for (size_t j = 0; j < m_planets.Size(); j++)
             {
-                m_planets.Erase(i);
-                break;
+                if (&m_planets[j] == m_selectedPlanets[i])
+                {
+                    m_planets.Erase(j);
+                    break;
+                }
             }
+            m_selectedPlanets.Erase(i);
+            m_selections.Erase(i);
         }
-        
+
         m_planetPtr = nullptr;
     }
 

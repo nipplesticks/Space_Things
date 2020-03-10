@@ -231,6 +231,7 @@ namespace Container
         template<class T>
         inline void Vector<T>::Erase(size_t index)
         {            
+            if (m_elementCount == 0) return;
             m_elementCount--;
             for (size_t i = index; i < m_elementCount; i++)
                 m_data[i] = m_data[i + 1];

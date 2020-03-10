@@ -56,7 +56,7 @@ public:
     const sf::Vector2f& GetBackgroundSize() const;
     const sf::Vector2f& GetPosition() const;
 
-    void Update(float dt);
+    bool Update(float dt);
 
     void Draw(sf::RenderWindow* wnd);
 
@@ -248,12 +248,12 @@ inline const sf::Vector2f& Button<T>::GetPosition() const
     return m_position;
 }
 template <class T>
-inline void Button<T>::Update(float dt)
+inline bool Button<T>::Update(float dt)
 {
     bool press = sf::Mouse::isButtonPressed(sf::Mouse::Left);
-
+    bool c;
     // TODO, take care of rotation
-    if (_contains(Global::g_mousePos))
+    if (c = _contains(Global::g_mousePos))
     {
         m_background.setFillColor(m_backgroundColor.Hover);
         m_foreground.setFillColor(m_foregroundColor.Hover);
@@ -278,11 +278,13 @@ inline void Button<T>::Update(float dt)
         m_foreground.setFillColor(m_foregroundColor.Idle);
     }
     m_pressed = press;
-    _adaptToCamera();
+    
+    return c && press;
 }
 template <class T>
 inline void Button<T>::Draw(sf::RenderWindow* wnd)
 {
+    _adaptToCamera();
     wnd->draw(m_background);
     wnd->draw(m_foreground);
     wnd->draw(m_text);
