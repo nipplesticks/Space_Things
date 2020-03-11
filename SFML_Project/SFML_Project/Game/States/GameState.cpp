@@ -96,37 +96,145 @@ void GameState::_setupButtons()
     }
 }
 
+#include <fstream>
+#include <sstream>
 void GameState::_loadMap()
 {
-    m_planets = Vector<Planet>(5, 5);
-    Vector<Planet*> planetsPtr(m_planets.Size());
-
-    for (size_t i = 0; i < m_planets.Size(); i++)
+    std::ifstream f;
+    f.open("save.map");
+    if (f)
     {
-        m_planets[i].SetMaxLevel(4);
-        m_planets[i].SetCurrentLevel(0);
-        sf::Vector2f position =
-            sf::Vector2f((float)(rand() % ((int)Global::g_windowSize.x - 200) + 100),
-            (float)(rand() % ((int)Global::g_windowSize.y - 200) + 100));
-        m_planets[i].SetPosition(position);
-        planetsPtr.PushBack(&m_planets[i]);
+        std::string line;
+        Planet p;
+        bool first = true;
+        struct sp
+        {
+            int idx;
+            std::string team;
+        };
+        Vector<sp> startPlanets;
+        bool isStartPlanet = false;
+        std::string team = "";
+        while (std::getline(f, line))
+        {
+            if (line == "[Planet]")
+            {
+                if (!first)
+                {
+                    m_planets.PushBack(p);
+                    if (isStartPlanet)
+                        startPlanets.PushBack({ (int)m_planets.Size() - 1, team });
+                }
+                isStartPlanet = false;
+                team = "";
+                first = false;
+            }
+            else
+            {
+                std::stringstream ss(line);
+                std::string key;
+                ss >> key;
+
+                if (key == "Position")
+                {
+                    float x, y;
+                    ss >> x >> y;
+                    p.SetPosition(x, y);
+                }
+                else if (key == "Team")
+                {
+                    ss >> team;
+                    p.SetTeam(team);
+                    
+                }
+                else if (key == "MaxLevel")
+                {
+                    int m;
+                    ss >> m;
+                    p.SetMaxLevel(m);
+                }
+                else if (key == "CurrentLevel")
+                {
+                    int l;
+                    ss >> l;
+                    p.SetCurrentLevel(l);
+                }
+                else if (key == "StartPlanet")
+                {
+                    int s;
+                    ss >> s;
+                    isStartPlanet = s;
+                }
+                else if (key == "UnitCount")
+                {
+                    // TODO
+                }
+            }
+        }
+        m_planets.PushBack(p);
+        if (isStartPlanet)
+            startPlanets.PushBack({ (int)m_planets.Size() - 1, team });
+
+        Vector<Planet*> planetPtrs(m_planets.Size(), m_planets.Size());
+        for (size_t i = 0; i < m_planets.Size(); i++)
+        {
+            planetPtrs[i] = &m_planets[i];
+        }
+        m_player.SetPlanetPointers(planetPtrs);
+        m_player.SetNameAndTeamColor("Player", sf::Color::Green);
+        m_enemy.SetPlanetPointers(planetPtrs);
+        m_enemy.SetNameAndTeamColor("Enemy1", sf::Color::Red);
+
+        for (size_t i = 0; i < startPlanets.Size(); i++)
+        {
+            std::string t = startPlanets[i].team;
+            if (t == "Player")
+            {
+                m_planets[startPlanets[i].idx].SetColor(sf::Color::Green);
+                m_player.SetStartPlanet(startPlanets[i].idx);
+            }
+            else if (t == "Enemy1")
+            {
+                m_planets[startPlanets[i].idx].SetColor(sf::Color::Red);
+                m_enemy.SetStartPlanet(startPlanets[i].idx);
+            }
+        }
+        
+
+        f.close();
     }
-    m_planets[0].SetTeam("Player");
-    m_planets[0].SetColor(sf::Color::Green);
-    m_planets[0].SetCurrentLevel(1);
+    else
+    {
+        m_planets = Vector<Planet>(5, 5);
+        Vector<Planet*> planetsPtr(m_planets.Size());
 
-    m_planets[planetsPtr.Size() - 1].SetTeam("Enemy");
-    m_planets[planetsPtr.Size() - 1].SetColor(sf::Color::Red);
-    m_planets[planetsPtr.Size() - 1].SetCurrentLevel(1);
+        for (size_t i = 0; i < m_planets.Size(); i++)
+        {
+            m_planets[i].SetMaxLevel(4);
+            m_planets[i].SetCurrentLevel(0);
+            sf::Vector2f position =
+                sf::Vector2f((float)(rand() % ((int)Global::g_windowSize.x - 200) + 100),
+                (float)(rand() % ((int)Global::g_windowSize.y - 200) + 100));
+            m_planets[i].SetPosition(position);
+            planetsPtr.PushBack(&m_planets[i]);
+        }
+        m_planets[0].SetTeam("Player");
+        m_planets[0].SetColor(sf::Color::Green);
+        m_planets[0].SetCurrentLevel(1);
+
+        m_planets[planetsPtr.Size() - 1].SetTeam("Enemy");
+        m_planets[planetsPtr.Size() - 1].SetColor(sf::Color::Red);
+        m_planets[planetsPtr.Size() - 1].SetCurrentLevel(1);
 
 
-    m_player.SetPlanetPointers(planetsPtr);
-    m_player.SetNameAndTeamColor("Player", sf::Color::Green);
-    m_player.SetStartPlanet(0);
+        m_player.SetPlanetPointers(planetsPtr);
+        m_player.SetNameAndTeamColor("Player", sf::Color::Green);
+        m_player.SetStartPlanet(0);
 
-    m_enemy.SetPlanetPointers(planetsPtr);
-    m_enemy.SetNameAndTeamColor("Enemy", sf::Color::Red);
-    m_enemy.SetStartPlanet(planetsPtr.Size() - 1);
+        m_enemy.SetPlanetPointers(planetsPtr);
+        m_enemy.SetNameAndTeamColor("Enemy", sf::Color::Red);
+        m_enemy.SetStartPlanet(planetsPtr.Size() - 1);
+    }
 }
 
 void GameState::_handleInput()

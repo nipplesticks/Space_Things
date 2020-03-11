@@ -106,7 +106,10 @@ void Planet::SetColor(const sf::Color& color)
 void Planet::SetTeam(const std::string& team)
 {
     if (team == "")
+    {
         m_team = "Neutral";
+        m_currentLevel = 0;
+    }
     else
         m_team = team;
     m_text.setString(m_team);

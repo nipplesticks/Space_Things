@@ -7,7 +7,7 @@ Console::Console()
     m_size = sf::Vector2f(Global::g_windowSize.x * 0.15, Global::g_windowSize.y);
     m_position = sf::Vector2f(0, 0);
     sf::Color c = sf::Color::White;
-    c.a = 128;
+    c.a = 200;
     SetBackgroundColor(c);
     SetCharacterSize(11);
     SetTextColor(sf::Color::Black);
@@ -84,7 +84,7 @@ void Console::PushString(const std::string& str)
     float s = 0.0f;
     for (size_t i = 0; i < m_texts.Size(); i++)
     {
-        s += m_texts[i].getGlobalBounds().height;
+        s += m_texts[i].getGlobalBounds().height + 1;
     }
 
     if (s >= m_size.y)
@@ -99,6 +99,21 @@ const sf::Vector2f& Console::GetPosition() const
 }
 
 void Console::Update(float dt)
+{
+    
+}
+
+void Console::Draw(sf::RenderWindow* wnd)
+{
+    
+    _adaptToCamera();
+
+    wnd->draw(m_background);
+    for (size_t i = 0; i < m_texts.Size(); i++)
+        wnd->draw(m_texts[i]);
+}
+
+void Console::_adaptToCamera()
 {
     Camera* c = Camera::GetActiveCamera();
 
@@ -118,23 +133,23 @@ void Console::Update(float dt)
     XMFLOAT3 rp;
     XMStoreFloat3(&rp, XMVector3Transform(XMLoadFloat3(&urp), XMMatrixRotationRollPitchYaw(0.0f, Global::DegreeseToRadians(-cRot), 0.0f)));
 
-
     sf::Vector2f rotatedPosition(rp.x, rp.z);
     rotatedPosition = rotatedPosition + cPos;
 
-    m_background.setPosition(rotatedPosition);
-    for (size_t i = 0; i < m_texts.Size(); i++)
-    {
-        m_texts[i].setScale(sf::Vector2f(cZoom, cZoom));
-        m_texts[i].setRotation(cRot);
-        m_texts[i].setPosition(rotatedPosition);
-        m_texts[i].setOrigin(sf::Vector2f(0.0f, -((int)i) * ((int)m_textSize + 1)));
-    }
-}
+    sf::Vector2f up = c->GetRelativeUp();
+    sf::Vector2f down = up * -1.0f;
+    sf::Vector2f xy = down * m_background.getSize().y;
 
-void Console::Draw(sf::RenderWindow* wnd)
-{
-    wnd->draw(m_background);
-    for (size_t i = 0; i < m_texts.Size(); i++)
-        wnd->draw(m_texts[i]);
+    m_background.setPosition(rotatedPosition);
+    if (!m_texts.Empty())
+    {
+        sf::Vector2f startPos = rotatedPosition + xy;
+        sf::Vector2f tSize = down * (m_texts[0].getGlobalBounds().height + cZoom * 2.f);
+        for (size_t i = 0; i < m_texts.Size(); i++)
+        {
+            m_texts[i].setScale(sf::Vector2f(cZoom, cZoom));
+            m_texts[i].setRotation(cRot);
+            m_texts[i].setPosition(startPos - tSize * 1.5f - tSize * (float)(i));
+        }
+    }
 }

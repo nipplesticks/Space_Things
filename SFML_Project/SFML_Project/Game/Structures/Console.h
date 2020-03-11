@@ -30,6 +30,8 @@ public:
     void Update(float dt);
 
     void Draw(sf::RenderWindow* wnd);
+private:
+    void _adaptToCamera();
 
 private:
     sf::RectangleShape m_background;

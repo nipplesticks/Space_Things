@@ -23,6 +23,9 @@ LevelEditorState::~LevelEditorState()
 
 void LevelEditorState::Init()
 {
+    m_console.SetPosition(0.0f, 0.0f);
+    m_console.SetSize(320.0f, 100.0f);
+    m_console.SetCharacterSize(16);
     m_drawSelection = false;
     m_eventPtr = nullptr;
     m_LeftMousePressed = true;
@@ -49,6 +52,8 @@ void LevelEditorState::Update(float dt, Event* e)
 
     for (size_t i = 0; i < m_buttons.Size(); i++)
         buttonPress = m_buttons[i].Update(dt) || buttonPress;
+    for (size_t i = 0; i < m_tools.Size(); i++)
+        buttonPress = m_tools[i].Update(dt) || buttonPress;
 
     if (!buttonPress)
         _handleInput();
@@ -73,7 +78,6 @@ void LevelEditorState::Release()
     m_eventPtr = nullptr;
 }
 
-
 void LevelEditorState::Draw(sf::RenderWindow* wnd)
 {
     for (size_t i = 0; i < m_planets.Size(); i++)
@@ -84,6 +88,10 @@ void LevelEditorState::Draw(sf::RenderWindow* wnd)
     for (size_t i = 0; i < m_buttons.Size(); i++)
     {
         m_buttons[i].Draw(wnd);
+    }
+    for (size_t i = 0; i < m_tools.Size(); i++)
+    {
+        m_tools[i].Draw(wnd);
     }
     if (m_drawSelection)
         wnd->draw(m_selection);
@@ -99,32 +107,77 @@ void LevelEditorState::Draw(sf::RenderWindow* wnd)
 
 void LevelEditorState::_setupButtons()
 {
-    m_buttons = Vector<Button<void(void)>>(5, 5);
-    float size = 32.0f;
-    std::function<void(void)> funcs[] = {
-        std::bind(&LevelEditorState::_save, this),
-        std::bind(&LevelEditorState::_load, this),
-        std::bind(&LevelEditorState::_quit, this),
-        std::bind(&LevelEditorState::_selectionMode, this),
-        std::bind(&LevelEditorState::_createPlanetMode, this)
-    };
-
-    std::string str[] = {
-        "Sa",
-        "Lo",
-        "Qu",
-        "Se",
-        "Cr"
-    };
-
-    for (size_t i = 0; i < m_buttons.Size(); i++)
     {
-        m_buttons[i].SetPosition(Global::g_windowSize.x - (size + 2) * i, Global::g_windowSize.y);
-        m_buttons[i].SetSize(size, size);
-        m_buttons[i].SetOrigin(1.0f, 1.0f);
-        m_buttons[i].RegisterFunction(funcs[i]);
-        m_buttons[i].SetTextString(str[i]);
-        m_buttons[i].SetTextOrigin(1.25f, 1.25f);
+        m_buttons = Vector<Button<void(void)>>(5, 5);
+        float size = 32.0f;
+        std::function<void(void)> funcs[] = {
+            std::bind(&LevelEditorState::_save, this),
+            std::bind(&LevelEditorState::_load, this),
+            std::bind(&LevelEditorState::_quit, this),
+            std::bind(&LevelEditorState::_selectionMode, this),
+            std::bind(&LevelEditorState::_createPlanetMode, this)
+        };
+
+        std::string str[] = {
+            "Sa",
+            "Lo",
+            "Qu",
+            "Se",
+            "Cr"
+        };
+
+        for (size_t i = 0; i < m_buttons.Size(); i++)
+        {
+            m_buttons[i].SetPosition(Global::g_windowSize.x - (size + 2) * i, Global::g_windowSize.y);
+            m_buttons[i].SetSize(size, size);
+            m_buttons[i].SetOrigin(1.0f, 1.0f);
+            m_buttons[i].RegisterFunction(funcs[i]);
+            m_buttons[i].SetTextString(str[i]);
+            m_buttons[i].SetTextOrigin(1.25f, 1.25f);
+        }
+    }
+    {
+        m_tools = Vector<Button<void(void)>>(12, 12);
+        float size = 32.0f;
+        std::function<void(void)> funcs[] = {
+            std::bind(&LevelEditorState::_makePlayer, this),
+            std::bind(&LevelEditorState::_makeE1, this),
+            std::bind(&LevelEditorState::_makeE2, this),
+            std::bind(&LevelEditorState::_makeE3, this),
+            std::bind(&LevelEditorState::_makeNetural, this),
+            std::bind(&LevelEditorState::_increaseStartUnit, this),
+            std::bind(&LevelEditorState::_decreaseStartUnit, this),
+            std::bind(&LevelEditorState::_incrementMaxLevel, this),
+            std::bind(&LevelEditorState::_decreaseMaxLevel, this),
+            std::bind(&LevelEditorState::_increaseLevel, this),
+            std::bind(&LevelEditorState::_decreaseLevel, this),
+            std::bind(&LevelEditorState::_setStartPlanet, this),
+        };
+
+        std::string str[] = {
+            "mPl",
+            "mE1",
+            "mE2",
+            "mE3",
+            "mNe",
+            "+Un",
+            "-Un",
+            "+ML",
+            "-ML",
+            "+CL",
+            "-CL",
+            "set"
+        };
+
+        for (size_t i = 0; i < m_tools.Size(); i++)
+        {
+            m_tools[i].SetPosition(Global::g_windowSize.x - (size * 1.5f + 2) * i, 0.0f);
+            m_tools[i].SetSize(size * 1.5f, size);
+            m_tools[i].SetOrigin(1.0f, 0.0f);
+            m_tools[i].RegisterFunction(funcs[i]);
+            m_tools[i].SetTextString(str[i]);
+            m_tools[i].SetTextOrigin(1.0f, 0.0f);
+        }
     }
 }
 
@@ -165,6 +218,7 @@ void LevelEditorState::_handleInput()
     {
         if (LeftMousePress && !m_LeftMousePressed)
         {
+            m_console.Clear();
             m_planetPtr = nullptr;
             m_selection.setPosition(Global::g_mousePos);
             for (size_t i = 0; i < m_planets.Size(); i++)
@@ -198,6 +252,15 @@ void LevelEditorState::_handleInput()
                     break;
                 }
             }
+            if (m_planetPtr)
+            {
+                m_console.Clear();
+                m_console.PushString("Team: " + m_planetPtr->GetTeam());
+                m_console.PushString("CurrentLevel: " + std::to_string(m_planetPtr->GetCurrentLevel()));
+                m_console.PushString("MaxLevel: " + std::to_string(m_planetPtr->GetMaxLevel()));
+                m_console.PushString("StartPlanet: " + std::to_string(m_planetInfo[m_planetPtr].IsStartPlanet));
+                m_console.PushString("StartUnitCount: " + std::to_string(m_planetInfo[m_planetPtr].UnitCount));
+            }
         }
         if (LeftMousePress)
         {
@@ -227,6 +290,7 @@ void LevelEditorState::_handleInput()
     {
         if (LeftMousePress && !m_LeftMousePressed)
         {
+            m_console.Clear();
             m_planetPtr = nullptr;
             Planet p;
             p.SetPosition(Global::g_mousePos);
@@ -234,8 +298,14 @@ void LevelEditorState::_handleInput()
             m_planetInfo.insert(std::make_pair(&m_planets.Back(), PlanetInfo()));
             m_planetPtr = &m_planets.Back();
             m_planetPtr->Update(m_deltaTime);
-            m_console.PushString("Planet Created at x: " + std::to_string(p.GetPosition().x) + 
-            " y: " + std::to_string(p.GetPosition().y));
+            if (m_planetPtr)
+            {
+                m_console.PushString("Team: " + m_planetPtr->GetTeam());
+                m_console.PushString("CurrentLevel: " + std::to_string(m_planetPtr->GetCurrentLevel()));
+                m_console.PushString("MaxLevel: " + std::to_string(m_planetPtr->GetMaxLevel()));
+                m_console.PushString("StartPlanet: " + std::to_string(m_planetInfo[m_planetPtr].IsStartPlanet));
+                m_console.PushString("StartUnitCount: " + std::to_string(m_planetInfo[m_planetPtr].UnitCount));
+            }
         }
         if (m_planetPtr && LeftMousePress)
         {
@@ -269,6 +339,16 @@ void LevelEditorState::_handleInput()
         m_planetPtr = nullptr;
     }
 
+    if (m_planetPtr)
+    {
+        m_console.Clear();
+        m_console.PushString("Team: " + m_planetPtr->GetTeam());
+        m_console.PushString("CurrentLevel: " + std::to_string(m_planetPtr->GetCurrentLevel()));
+        m_console.PushString("MaxLevel: " + std::to_string(m_planetPtr->GetMaxLevel()));
+        m_console.PushString("StartPlanet: " + std::to_string(m_planetInfo[m_planetPtr].IsStartPlanet));
+        m_console.PushString("StartUnitCount: " + std::to_string(m_planetInfo[m_planetPtr].UnitCount));
+    }
+
     m_DelPressed = delPress;
     m_LeftMousePressed = LeftMousePress;
 }
@@ -282,10 +362,11 @@ void LevelEditorState::_save()
         f << "[Planet]\n";
         f << "Position " << m_planets[i].GetPosition().x << " " << m_planets[i].GetPosition().y << "\n";
         f << "Team " << m_planets[i].GetTeam() << "\n";
-        f << "MaxLevel " << m_planets[i].GetMaxLevel();
-        f << "StartLevel " << m_planets[i].GetCurrentLevel();
-        f << "StartPlanet " << m_planetInfo[&m_planets[i]].IsStartPlanet;
-        f << "UnitCount " << m_planetInfo[&m_planets[i]].UnitCount;
+        f << "MaxLevel " << m_planets[i].GetMaxLevel() << "\n";
+        f << "CurrentLevel " << m_planets[i].GetCurrentLevel() << "\n";
+        f << "StartLevel " << m_planets[i].GetCurrentLevel() << "\n";
+        f << "StartPlanet " << m_planetInfo[&m_planets[i]].IsStartPlanet << "\n";
+        f << "UnitCount " << m_planetInfo[&m_planets[i]].UnitCount << "\n";
     }
     f.close();
 }
@@ -348,5 +429,116 @@ void LevelEditorState::_select()
             m_selections.Back().setSize(sf::Vector2f(r * 2.0f, r * 2.0f));
             m_selections.Back().setOrigin(sf::Vector2f(r, r));
         }
+    }
+}
+
+void LevelEditorState::_makePlayer()
+{
+    _setSelectionTeam("Player", sf::Color::Green);
+}
+
+void LevelEditorState::_makeE1()
+{
+    _setSelectionTeam("Enemy1", sf::Color::Red);
+}
+
+void LevelEditorState::_makeE2()
+{
+    _setSelectionTeam("Enemy2", sf::Color::Magenta);
+}
+
+void LevelEditorState::_makeE3()
+{
+    _setSelectionTeam("Enemy2", sf::Color::Yellow);
+}
+
+void LevelEditorState::_makeNetural()
+{
+    _setSelectionTeam("", sf::Color(128,128,128));
+}
+
+void LevelEditorState::_increaseStartUnit()
+{
+    _addUnits(10);
+}
+
+void LevelEditorState::_decreaseStartUnit()
+{
+    _addUnits(-10);
+}
+
+void LevelEditorState::_incrementMaxLevel()
+{
+    _maxLevel(1);
+}
+
+void LevelEditorState::_decreaseMaxLevel()
+{
+    _maxLevel(-1);
+}
+
+void LevelEditorState::_increaseLevel()
+{
+    _incLevel(1);
+}
+
+void LevelEditorState::_decreaseLevel()
+{
+    _incLevel(-1);
+}
+
+void LevelEditorState::_setStartPlanet()
+{
+    if (m_planetPtr)
+    {
+        m_planetInfo[m_planetPtr].IsStartPlanet = true;
+    }
+}
+
+void LevelEditorState::_setSelectionTeam(const std::string& str, const sf::Color& col)
+{
+    for (size_t i = 0; i < m_selectedPlanets.Size(); i++)
+    {
+        if (m_selectedPlanets[i]->GetCurrentLevel() < 1)
+            m_selectedPlanets[i]->SetCurrentLevel(1);
+        m_selectedPlanets[i]->SetColor(col);
+        m_selectedPlanets[i]->SetTeam(str);
+    }
+}
+
+void LevelEditorState::_addUnits(int inc)
+{
+    for (size_t i = 0; i < m_selectedPlanets.Size(); i++)
+    {
+        Planet* key = m_selectedPlanets[i];
+        m_planetInfo[key].UnitCount += inc;
+        if (m_planetInfo[key].UnitCount < 0)
+            m_planetInfo[key].UnitCount = 0;
+    }
+}
+
+void LevelEditorState::_maxLevel(int inc)
+{
+    for (size_t i = 0; i < m_selectedPlanets.Size(); i++)
+    {
+        Planet* key = m_selectedPlanets[i];
+        key->SetMaxLevel(key->GetMaxLevel() + inc);
+        if (key->GetMaxLevel() < 1)
+            key->SetMaxLevel(1);
+    }
+}
+
+void LevelEditorState::_incLevel(int inc)
+{
+    for (size_t i = 0; i < m_selectedPlanets.Size(); i++)
+    {
+        Planet* key = m_selectedPlanets[i];
+        key->SetCurrentLevel(key->GetCurrentLevel() + inc);
+    }
+
+    if (!m_selectedPlanets.Empty() && m_planetPtr)
+    {
+        Planet* key = m_planetPtr;
+        key->SetCurrentLevel(key->GetCurrentLevel() + inc);
     }
 }
