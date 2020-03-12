@@ -8,6 +8,7 @@ using namespace Container::Vector;
 
 float Unit::DEFAULT_UNIT_RADIUS = 3.0f;
 float Unit::DEFAULT_UNIT_SPEED = 64.0f;
+float Unit::DEFAULT_DETECT_RANGE = 64.0f;
 int Unit::DEFUALT_MIN_ORBIT_DISTANCE = 16;
 int Unit::DEFUALT_MAX_ORBIT_DISTANCE = 64;
 int Unit::DEFAULT_UNIT_STRENGTH = 1;
@@ -166,7 +167,44 @@ void Unit::PlaceInQT()
 
 void Unit::Update(float dt)
 {
-    if (!m_isIdle)
+    Unit* enemy = nullptr;
+    float search = Unit::DEFAULT_DETECT_RANGE;
+    if (m_isFollowingTarget)
+        search *= 2.f;
+
+    Vector<Unit*> units = Global::g_unitQuadtree.GetObjectsFromCircle(GetPosition(), search);
+    float emyDist = FLT_MAX;
+    sf::Vector2f emyDir;
+    for (size_t i = 0; i < units.Size(); i++)
+    {
+        if (!units[i]->IsDead() && units[i]->GetTeam() != m_team)
+        {
+            emyDir = units[i]->GetPosition() - GetPosition();
+            float lsqr = emyDir.x * emyDir.x + emyDir.y * emyDir.y;
+            if (lsqr < emyDist)
+            {
+                emyDist = lsqr;
+                enemy = units[i];
+            }
+        }
+    }
+
+
+    if (enemy)
+    {
+        float l = sqrt(emyDist);
+
+        if (l < enemy->GetRadius() + GetRadius())
+        {
+            enemy->SetStrength(enemy->GetStrength() - m_strength);
+        }
+        else
+        {
+            sf::Vector2f dir = emyDir * (1.0f / l);
+            Move(dir * m_speed * dt);
+        }
+    }
+    else if (!m_isIdle)
     {
         sf::Vector2f direction = m_destination - GetPosition();
         float l = sqrt(direction.x * direction.x + direction.y * direction.y);
@@ -193,30 +231,6 @@ void Unit::Update(float dt)
         if (l > GetRadius())
         {
             direction = direction * (1.0f / l);
-
-            Vector<Unit*> nearbyUnits = Global::g_unitQuadtree.GetObjectsFromCircle(GetPosition(), GetRadius() * 2);
-
-            if (nearbyUnits.Size() > 1)
-            {
-                sf::Vector2f alter(0, 0);
-                for (size_t i = 0; i < nearbyUnits.Size(); i++)
-                {
-                    if (nearbyUnits[i] == this)
-                        continue;
-                    if (nearbyUnits[i]->GetTeam() == m_team)
-                    {
-                        alter = alter + nearbyUnits[i]->GetPosition();
-                    }
-                }
-                alter = alter * (1.0f / (float)(nearbyUnits.Size() - 1));
-
-                alter = GetPosition() - alter;
-                float alterLength = sqrt(alter.x * alter.x + alter.y * alter.y);
-                direction = direction * 2.0f + (alter * (1.0f / alterLength));
-
-                l = sqrt(direction.x * direction.x + direction.y * direction.y);
-                direction = direction * (1.0f / l);
-            }
 
             Move(direction * m_speed * dt);
 

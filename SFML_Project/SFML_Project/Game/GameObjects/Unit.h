@@ -11,6 +11,7 @@ class Unit
 public:
     static float DEFAULT_UNIT_RADIUS;
     static float DEFAULT_UNIT_SPEED;
+    static float DEFAULT_DETECT_RANGE;
     static int DEFUALT_MIN_ORBIT_DISTANCE;
     static int DEFUALT_MAX_ORBIT_DISTANCE;
     static int DEFAULT_UNIT_STRENGTH;
